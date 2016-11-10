@@ -137,10 +137,11 @@ public class RadioStation implements Comparable<RadioStation>, Serializable{
             this.linkToSong = linkToSong;
             this.image = image;
         }
-        // TODO: Transfer to adapter
-        public Drawable getImage(Context context) {// add context remove from class
+        
+        public int getImage() {// add context remove from class
             int rand = Utils.generateRand(RadioStationSingleton.getInstance().getImagesSize());
-            return context.getResources().getDrawable(RadioStationSingleton.getInstance().getImageByNumber(rand));
+            return RadioStationSingleton.getInstance().getImageByNumber(rand);
+            // return context.getResources().getDrawable(RadioStationSingleton.getInstance().getImageByNumber(rand));
         }
     }
 }

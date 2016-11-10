@@ -40,7 +40,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         RecyclerItemViewHolder holder = (RecyclerItemViewHolder) viewHolder;
         String itemText = songs.get(position).getName();
-        Drawable image = songs.get(position).getImage(this.context);
+        int imageId = songs.get(position).getImage();
+        Drawable image = context.getResources().getDrawable(imageId);
         holder.mItemTextView.setText(itemText);
         holder.mImageView.setImageDrawable(image);
     }
