@@ -137,11 +137,10 @@ public class RadioStation implements Comparable<RadioStation>, Serializable{
             this.linkToSong = linkToSong;
             this.image = image;
         }
-        
-        public int getImage() {// add context remove from class
+
+        public int getImage() {
             int rand = Utils.generateRand(RadioStationSingleton.getInstance().getImagesSize());
             return RadioStationSingleton.getInstance().getImageByNumber(rand);
-            // return context.getResources().getDrawable(RadioStationSingleton.getInstance().getImageByNumber(rand));
         }
     }
 }
