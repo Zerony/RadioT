@@ -52,8 +52,9 @@ public class PlayMusicActivity extends AppCompatActivity {
     private void initViewPagerAndTabs() {
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
         PagerAdapter pagerAdapter = new PagerAdapter(getSupportFragmentManager());
-        RadioStation.generateStations(6);
-        List<RadioStation> allStations = RadioStation.getAllRadioStations();
+        RadioApplication application = (RadioApplication) getApplication();
+        application.generateStations(6);
+        List<RadioStation> allStations = application.getRadioStationData().getAllRadioStations();
         for (RadioStation itemStation : allStations) {
             pagerAdapter.addFragment(SongsFragment.createInstance(itemStation), itemStation.getName());
         }

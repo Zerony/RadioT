@@ -20,7 +20,7 @@ public class SongsFragment extends Fragment {
         SongsFragment songsFragment = new SongsFragment();
 
         Bundle bundle = new Bundle();
-        bundle.putSerializable("STATION", station);
+        bundle.putSerializable(BUNDLE_RADIO_KEY, station);
         songsFragment.setArguments(bundle);
 
         return songsFragment;
@@ -32,7 +32,8 @@ public class SongsFragment extends Fragment {
         RadioStation station;
         if(savedInstanceState!=null) {
             String radioId = savedInstanceState.getString(SAVED_RADIO_KEY);
-            station = RadioStation.getStation(radioId);
+            RadioApplication application = (RadioApplication) getActivity().getApplication();
+            station = application.getRadioStationData().getStation(radioId);
         } else {
             Bundle bundle = getArguments();
             station = (RadioStation) bundle.getSerializable(BUNDLE_RADIO_KEY);

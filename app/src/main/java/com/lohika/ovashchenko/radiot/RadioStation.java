@@ -35,9 +35,6 @@ public class RadioStation implements Comparable<RadioStation>, Serializable{
         return songs;
     }
 
-    public static List<RadioStation> getAllRadioStations() {
-        return RadioStationSingleton.getInstance().getAllRadioStations();
-    }
     // </editor-fold>  
 
     private String name;
@@ -45,37 +42,13 @@ public class RadioStation implements Comparable<RadioStation>, Serializable{
     private int index;
     private ArrayList<Song> songs;
 
-    private RadioStation() {
-        index = RadioStationSingleton.getInstance().size();
+    public RadioStation(int index) {
+        this.index = index;
         name = "Station " + index;
         id = name.replaceAll(" ", "");
         songs = new ArrayList<>();
-        RadioStationSingleton singleton = RadioStationSingleton.getInstance();
-        singleton.addStation(this);
-
     }
 
-    public static void generateStations(int number) {
-        if (RadioStationSingleton.getInstance().size() > 0) {
-            return;
-        }
-        for(int i=0; i<number; i++) {
-            RadioStation radio = new RadioStation();
-            for(int j=0; j<5; j++) {
-                Song song = radio.new Song(radio.getName() + j, radio.getName() + "| SongName "+ j, "Link " + j, "Image" + j);
-                radio.songs.add(song);
-            }
-
-        }
-    }
-
-    public static RadioStation getStation(String index) {
-        return RadioStationSingleton.getInstance().getStation(index);
-    }
-
-    public static RadioStation getStation(int index) {
-        return RadioStationSingleton.getInstance().getStation(index);
-    }
 
     @Override
     public int compareTo(RadioStation o) {
@@ -89,7 +62,7 @@ public class RadioStation implements Comparable<RadioStation>, Serializable{
         private String artist;
         private String name;
         private String linkToSong;
-        private String image;
+        private int image;
 
         // <editor-fold desc="Getters And Setters">
         public String getArtist() {
@@ -118,7 +91,7 @@ public class RadioStation implements Comparable<RadioStation>, Serializable{
 
 
 
-        public void setImage(String image) {
+        public void setImage(int image) {
             this.image = image;
         }
         // </editor-fold>
@@ -127,10 +100,10 @@ public class RadioStation implements Comparable<RadioStation>, Serializable{
             this.artist = "Rammstein";
             this.name = "Du Hust ";
             this.linkToSong = "some link";
-            this.image = "Some image";
+            this.image = 0;
         }
 
-        public Song(String artist, String name, String linkToSong, String image) {
+        public Song(String artist, String name, String linkToSong, int image) {
             this();
             this.artist = artist;
             this.name = name;
@@ -139,8 +112,7 @@ public class RadioStation implements Comparable<RadioStation>, Serializable{
         }
 
         public int getImage() {
-            int rand = Utils.generateRand(RadioStationSingleton.getInstance().getImagesSize());
-            return RadioStationSingleton.getInstance().getImageByNumber(rand);
+            return image;
         }
     }
 }
