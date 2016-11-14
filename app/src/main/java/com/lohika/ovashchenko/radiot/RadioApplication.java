@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +39,7 @@ public class RadioApplication extends Application {
         return RadioStationData.getInstance();
     }
 
-    public void generateStations(int number) {
+    private static void generateStations(int number) {
         if (RadioStationData.getInstance().size() > 0) {
             return;
         }
@@ -55,17 +56,21 @@ public class RadioApplication extends Application {
     }
 
     public static class RadioStationData {
-        private static RadioStationData instance = new RadioStationData();
-        private Map<String, RadioStation> allRadioStations = new HashMap<>();
-        private List<RadioStation> allRadioStationsList = new ArrayList<>();
+        private static RadioStationData instance;// = new RadioStationData();
+        private Map<String, RadioStation> allRadioStations = new LinkedHashMap<>(); //
+        private List<RadioStation> allRadioStationsList = new ArrayList<>(); // Remove list
 
         private List<Integer> dataWithImages;
 
         private static RadioStationData getInstance() {
+            if (instance == null) {
+                instance = new RadioStationData();
+                RadioApplication.generateStations(6);
+            }
             return instance;
         }
 
-        public  List<RadioStation> getAllRadioStations() {
+        public List<RadioStation> getAllRadioStations() {
             return allRadioStationsList;
         }
 

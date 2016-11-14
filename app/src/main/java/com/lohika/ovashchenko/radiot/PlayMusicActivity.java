@@ -53,7 +53,7 @@ public class PlayMusicActivity extends AppCompatActivity {
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
         PagerAdapter pagerAdapter = new PagerAdapter(getSupportFragmentManager());
         RadioApplication application = (RadioApplication) getApplication();
-        application.generateStations(6);
+
         List<RadioStation> allStations = application.getRadioStationData().getAllRadioStations();
         for (RadioStation itemStation : allStations) {
             pagerAdapter.addFragment(SongsFragment.createInstance(itemStation), itemStation.getName());
@@ -66,7 +66,7 @@ public class PlayMusicActivity extends AppCompatActivity {
 
     static class PagerAdapter extends FragmentPagerAdapter {
 
-        private final List<Fragment> fragmentList = new ArrayList<>();
+        private final List<Fragment> fragmentList = new ArrayList<>(); // TODO figure out why we need final here
         private final List<String> fragmentTitleList = new ArrayList<>();
 
         public PagerAdapter(FragmentManager fragmentManager) {

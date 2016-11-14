@@ -22,7 +22,6 @@ public class Utils {
     }
 
     public static int generateRand(int maxValue) {
-        int result = (int)(Math.random() * maxValue);
-        return result;
+        return (int)(Math.random() * maxValue);
     }
 }
