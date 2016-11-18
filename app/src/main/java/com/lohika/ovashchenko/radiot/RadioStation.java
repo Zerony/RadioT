@@ -9,13 +9,18 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by ovashchenko on 11/7/16.
  */
-public class RadioStation implements Comparable<RadioStation>, Serializable{
+public class RadioStation implements Serializable{
+    private String name;
+    private String URL;
+    private Map<String, Song> songs;
+
     // <editor-fold desc="Getters And Setters">  
     public String getName() {
         return name;
@@ -25,71 +30,48 @@ public class RadioStation implements Comparable<RadioStation>, Serializable{
         this.name = name;
     }
 
-    public String getId() {
-        return id;
+    public String getURL() {
+        return URL;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setId(String URL) {
+        this.URL = URL;
     }
 
     public List<Song> getSongs() {
-        return this.songs;
+        List<Song> result = new ArrayList<>();
+        for(Song item : this.songs.values()) {
+            result.add(item);
+        }
+        return result;
     }
 
     public void addSong(Song song) {
-        this.songs.add(song);
+        if (this.songs.containsKey(song.getLinkToSong())) {
+            return;
+        }
+        this.songs.put(song.getLinkToSong(), song);
     }
-
     // </editor-fold>  
 
-    private String name;
-    private String id;
-    private int index;
-    private ArrayList<Song> songs;
-
-    public RadioStation(int index) {
-        this.index = index;
-        name = "Station " + index;
-        id = name.replaceAll(" ", "");
-        songs = new ArrayList<>();
+    public RadioStation(String URL) {
+        name = "NoName";
+        this.URL = URL;
+        songs = new LinkedHashMap<>();
     }
 
-
-    @Override
-    public int compareTo(RadioStation o) {
-        if (o.index == this.index) {
-            return 0;
-        }
-        return (o.index > this.index)?-1:1;
+    public RadioStation(String name, String URL) {
+        this(URL);
+        this.name = name;
     }
 
     public class Song {
-        private String artist;
         private String name;
         private String linkToSong;
         private String imageURL;
         private Date pubDate;
 
-        public Drawable getImage() {
-            return image;
-        }
-
-        public void setImage(Drawable image) {
-            this.image = image;
-        }
-
-        private Drawable image;
-
         // <editor-fold desc="Getters And Setters">
-        public String getArtist() {
-            return artist;
-        }
-
-        public void setArtist(String artist) {
-            this.artist = artist;
-        }
-
         public String getName() {
             return name;
         }
@@ -121,24 +103,22 @@ public class RadioStation implements Comparable<RadioStation>, Serializable{
         public String getImageURL() {
             return imageURL;
         }
-
         // </editor-fold>
 
         public Song() {
-            this.artist = "Rammstein";
             this.name = "Du Hust ";
             this.linkToSong = "some link";
             this.imageURL = "";
+            this.pubDate = new Date();
         }
 
-        public Song(String artist, String name, String linkToSong, String imageURL) {
+        public Song(String name, String linkToSong, String imageURL, Date pubDate) {
             this();
-            this.artist = artist;
             this.name = name;
             this.linkToSong = linkToSong;
             this.imageURL = imageURL;
+            this.pubDate = pubDate;
+
         }
-
-
     }
 }

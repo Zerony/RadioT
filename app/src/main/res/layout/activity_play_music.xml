@@ -35,13 +35,13 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fabButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_favorite_outline_white_24dp"
-        app:borderWidth="0dp"
-        app:layout_behavior="com.lohika.ovashchenko.radiot.ScrollingFABBehavior"/>
+    <!--<android.support.design.widget.FloatingActionButton-->
+        <!--android:id="@+id/fabButton"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="end|bottom"-->
+        <!--android:layout_margin="@dimen/fab_margin"-->
+        <!--android:src="@drawable/ic_favorite_outline_white_24dp"-->
+        <!--app:borderWidth="0dp"-->
+        <!--app:layout_behavior="com.lohika.ovashchenko.radiot.ScrollingFABBehavior"/>-->
 </android.support.design.widget.CoordinatorLayout>

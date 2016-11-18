@@ -50,21 +50,17 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         RecyclerItemViewHolder holder = (RecyclerItemViewHolder) viewHolder;
         RadioStation.Song song = songs.get(position);
         String itemText = song.getName();
-
-        //Drawable image = context.getResources().getDrawable(R.drawable.rock); // Default image
         if (song.getImageURL() != null) {
             Glide
                     .with(context)
                     .load(song.getImageURL())
-                    .placeholder(R.drawable.rock)
+                    //.centerCrop()
+                    //.placeholder(R.drawable.rock)
                     .crossFade()
                     .into(holder.mImageView);
         }
 
-        // image = drawableFromUrl(imageId);
-
         holder.mItemTextView.setText(itemText);
-        //holder.mImageView.setImageDrawable(image);
     }
 
 

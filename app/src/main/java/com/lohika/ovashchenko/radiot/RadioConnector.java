@@ -26,13 +26,19 @@ import java.util.regex.Pattern;
 public class RadioConnector implements Runnable{
     Handler handler;
     private static String LOG_TAG = "XML PARSER";
-    public RadioConnector(Handler handler) {
+    RadioStation radioStation;
+    public RadioConnector(Handler handler, RadioStation radioStation) {
         this.handler = handler;
+        this.radioStation = radioStation;
     }
 
     @Override
     public void run() {
-        connect("http://feeds.rucast.net/radio-t");
+        if (RadioApplication.getInstance().isSynced()) {
+            return;
+        }
+        //radioStation = new RadioStation("RadioT", "http://feeds.rucast.net/radio-t");
+        connect(radioStation.getURL());
     }
 
     private void connect(String url) {
@@ -47,14 +53,16 @@ public class RadioConnector implements Runnable{
                 InputStream instream = entity.getContent();
                 String result= convertStreamToString(instream);
                 parseXML(result);
-                // instream.close();
+                RadioApplication.getInstance().getRadioStationData().addStation(radioStation);
+                handler.sendEmptyMessage(0);
             }
 
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private RadioStation parseXML(String text) {
-        RadioStation result = new RadioStation(0);
         try {
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             factory.setNamespaceAware(true);
@@ -65,7 +73,7 @@ public class RadioConnector implements Runnable{
                         + ", depth = " + xpp.getDepth() + ", attrCount = "
                         + xpp.getAttributeCount());
                 if ( xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals("item")) {
-                        RadioStation.Song song = result.new Song();
+                        RadioStation.Song song = radioStation.new Song();
                         while (xpp.getEventType() != XmlPullParser.END_TAG || !xpp.getName().equals("item")) {
 
                             if (xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals("title")) {
@@ -82,8 +90,6 @@ public class RadioConnector implements Runnable{
 
                             } else if (xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals("description")) {
                                 xpp.next();
-
-                                //Pattern p = Pattern.compile("src=\".*\"");
                                 Pattern p = Pattern.compile("src\\s*=\\s*\"([^\"]+)\"");
 
                                 Matcher m = p.matcher(xpp.getText());
@@ -93,7 +99,7 @@ public class RadioConnector implements Runnable{
                             }
                             xpp.next();
                         }
-                        result.addSong(song);
+                        radioStation.addSong(song);
                         /*for (int i = 0; i < xpp.getAttributeCount(); i++) {
                             tmp = tmp + xpp.getAttributeName(i) + " = "
                                     + xpp.getAttributeValue(i) + ", ";
@@ -104,18 +110,15 @@ public class RadioConnector implements Runnable{
                 xpp.next();
             }
             Log.d(LOG_TAG, "END_DOCUMENT");
-//            for(RadioStation.Song item : result.getSongs()) {
-//                item.setImage(Utils.drawableFromUrl(item.getImageURL()));
-//            }
-            RadioApplication.getInstance().getRadioStationData().addStation(result);
-            handler.sendEmptyMessage(0);
+
+            return radioStation;
         } catch (XmlPullParserException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return result;
+        return null;
     }
 
     private String convertStreamToString(InputStream is) {

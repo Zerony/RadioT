@@ -9,12 +9,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class SongsFragment extends Fragment {
     private final static String SAVED_RADIO_KEY = "RADIO_KEY";
     private final static String BUNDLE_RADIO_KEY = "STATION";
+    private RecyclerAdapter recyclerAdapter;
 
     public static SongsFragment createInstance(RadioStation station) {
         SongsFragment songsFragment = new SongsFragment();
@@ -51,13 +49,16 @@ public class SongsFragment extends Fragment {
         Bundle bundle = getArguments();
         RadioStation station = (RadioStation) bundle.getSerializable(BUNDLE_RADIO_KEY);
 
-        outState.putString(SAVED_RADIO_KEY, station.getId());
+        outState.putString(SAVED_RADIO_KEY, station.getURL());
     }
 
     private void setupRecyclerView(RecyclerView recyclerView, RadioStation station) {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        RecyclerAdapter recyclerAdapter = new RecyclerAdapter(station);
         recyclerView.setAdapter(recyclerAdapter);
+        recyclerAdapter = new RecyclerAdapter(station);
     }
 
+    public void refreshData() {
+        recyclerAdapter.notifyDataSetChanged();
+    }
 }

@@ -16,6 +16,16 @@ import java.util.Map;
 
 public class RadioApplication extends Application {
     private static RadioApplication instance;
+    private boolean isSynced = false;
+
+    public void synced() {
+        isSynced = true;
+    }
+
+    public boolean isSynced () {
+        return isSynced;
+    }
+
     public static RadioApplication getInstance() {
         return instance;
     }
@@ -49,29 +59,19 @@ public class RadioApplication extends Application {
         if (RadioStationData.getInstance().size() > 0) {
             return;
         }
-        for(int i=0; i<number; i++) {
-            RadioStation radio = new RadioStation(i);
-//            for(int j=0; j<5; j++) {
-//                int rand = Utils.generateRand(RadioStationData.getInstance().getImagesSize());
-//                int image =  RadioStationData.getInstance().getImageByNumber(rand);
-//                RadioStation.Song song = radio.new Song(radio.getName() + j, radio.getName() + "| SongName "+ j, "Link " + j, image);
-//                radio.getSongs().add(song);
-//            }
-            RadioStationData.getInstance().addStation(radio);
-        }
+        RadioStation radio = new RadioStation("RadioT", "http://feeds.rucast.net/radio-t");
+        RadioStationData.getInstance().addStation(radio);
     }
 
     public static class RadioStationData {
         private static RadioStationData instance;// = new RadioStationData();
-        private Map<String, RadioStation> allRadioStations = new LinkedHashMap<>(); //
-        //private List<RadioStation> allRadioStationsList = new ArrayList<>(); // Remove list
-
+        private Map<String, RadioStation> allRadioStations = new LinkedHashMap<>();
         private List<Integer> dataWithImages;
 
         private static RadioStationData getInstance() {
             if (instance == null) {
                 instance = new RadioStationData();
-                //RadioApplication.generateStations(6);
+                RadioApplication.generateStations(1);
             }
             return instance;
         }
@@ -81,7 +81,7 @@ public class RadioApplication extends Application {
         }
 
         public void addStation(RadioStation radioStation) {
-            allRadioStations.put(radioStation.getId(), radioStation);
+            allRadioStations.put(radioStation.getURL(), radioStation);
         }
 
         public RadioStation getStation(String index) {

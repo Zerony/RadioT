@@ -49,17 +49,26 @@ public class PlayMusicActivity extends AppCompatActivity {
                 super.handleMessage(msg);
                 switch (msg.what) {
                     case 0:
-                        for (RadioStation itemStation : RadioApplication.getInstance().getRadioStationData().getAllRadioStations()) {
+                        //RadioApplication.getInstance().getRadioStationData().getStation(0);
+                        /*for (RadioStation itemStation : RadioApplication.getInstance().getRadioStationData().getAllRadioStations()) {
                             pagerAdapter.addFragment(SongsFragment.createInstance(itemStation), itemStation.getName());
+                        }*/
+                        ((SongsFragment) pagerAdapter.getItem(0)).refreshData();
+                        for (int i=0; i<pagerAdapter.getCount(); i++) {
+                            ((SongsFragment)pagerAdapter.getItem(i)).refreshData();
                         }
                         pagerAdapter.notifyDataSetChanged();
+                        RadioApplication.getInstance().synced();
                         break;
                 }
             }
         };
 
-        Thread thread = new Thread(new RadioConnector(handler));
-        thread.start();
+        if (!RadioApplication.getInstance().isSynced()) {
+            Thread thread = new Thread(new RadioConnector(handler, RadioApplication.getInstance().getRadioStationData().getStation("http://feeds.rucast.net/radio-t")));
+            thread.start();
+        }
+
     }
 
     private void initToolbar() {
@@ -75,7 +84,9 @@ public class PlayMusicActivity extends AppCompatActivity {
         RadioApplication application = (RadioApplication) getApplication();
 
         //List<RadioStation> allStations = application.getRadioStationData().getAllRadioStations();
+        //SongsFragment fragment; // = SongsFragment.createInstance(itemStation);
         for (RadioStation itemStation : application.getRadioStationData().getAllRadioStations()) {
+            //fragment = SongsFragment.createInstance(itemStation);
             pagerAdapter.addFragment(SongsFragment.createInstance(itemStation), itemStation.getName());
         }
 
@@ -86,7 +97,7 @@ public class PlayMusicActivity extends AppCompatActivity {
 
     static class PagerAdapter extends FragmentPagerAdapter {
 
-        private final List<Fragment> fragmentList = new ArrayList<>(); // TODO figure out why we need final here
+        private final List<Fragment> fragmentList = new ArrayList<>();
         private final List<String> fragmentTitleList = new ArrayList<>();
 
         public PagerAdapter(FragmentManager fragmentManager) {
