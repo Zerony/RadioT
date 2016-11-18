@@ -2,6 +2,8 @@ package com.lohika.ovashchenko.radiot;
 
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -17,6 +19,8 @@ import java.util.List;
 
 public class PlayMusicActivity extends AppCompatActivity {
 
+    private Handler handler;
+    private PagerAdapter pagerAdapter;
 
     // <editor-fold desc="ClickListener">  
     private View.OnClickListener onClickListener = new View.OnClickListener() {
@@ -32,7 +36,6 @@ public class PlayMusicActivity extends AppCompatActivity {
     };
     // </editor-fold>
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +43,23 @@ public class PlayMusicActivity extends AppCompatActivity {
 
         initToolbar();
         initViewPagerAndTabs();
+        handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                switch (msg.what) {
+                    case 0:
+                        for (RadioStation itemStation : RadioApplication.getInstance().getRadioStationData().getAllRadioStations()) {
+                            pagerAdapter.addFragment(SongsFragment.createInstance(itemStation), itemStation.getName());
+                        }
+                        pagerAdapter.notifyDataSetChanged();
+                        break;
+                }
+            }
+        };
+
+        Thread thread = new Thread(new RadioConnector(handler));
+        thread.start();
     }
 
     private void initToolbar() {
@@ -51,11 +71,11 @@ public class PlayMusicActivity extends AppCompatActivity {
 
     private void initViewPagerAndTabs() {
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
-        PagerAdapter pagerAdapter = new PagerAdapter(getSupportFragmentManager());
+        pagerAdapter = new PagerAdapter(getSupportFragmentManager());
         RadioApplication application = (RadioApplication) getApplication();
 
-        List<RadioStation> allStations = application.getRadioStationData().getAllRadioStations();
-        for (RadioStation itemStation : allStations) {
+        //List<RadioStation> allStations = application.getRadioStationData().getAllRadioStations();
+        for (RadioStation itemStation : application.getRadioStationData().getAllRadioStations()) {
             pagerAdapter.addFragment(SongsFragment.createInstance(itemStation), itemStation.getName());
         }
 
@@ -87,6 +107,7 @@ public class PlayMusicActivity extends AppCompatActivity {
         public int getCount() {
             return fragmentList.size();
         }
+
         @Override
         public CharSequence getPageTitle(int position) {
             return fragmentTitleList.get(position);

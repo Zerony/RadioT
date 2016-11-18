@@ -5,6 +5,9 @@ package com.lohika.ovashchenko.radiot;
  */
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,6 +17,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import com.bumptech.glide.Glide;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -39,12 +48,25 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         RecyclerItemViewHolder holder = (RecyclerItemViewHolder) viewHolder;
-        String itemText = songs.get(position).getName();
-        int imageId = songs.get(position).getImage();
-        Drawable image = context.getResources().getDrawable(imageId);
+        RadioStation.Song song = songs.get(position);
+        String itemText = song.getName();
+
+        //Drawable image = context.getResources().getDrawable(R.drawable.rock); // Default image
+        if (song.getImageURL() != null) {
+            Glide
+                    .with(context)
+                    .load(song.getImageURL())
+                    .placeholder(R.drawable.rock)
+                    .crossFade()
+                    .into(holder.mImageView);
+        }
+
+        // image = drawableFromUrl(imageId);
+
         holder.mItemTextView.setText(itemText);
-        holder.mImageView.setImageDrawable(image);
+        //holder.mImageView.setImageDrawable(image);
     }
+
 
     @Override
     public int getItemCount() {

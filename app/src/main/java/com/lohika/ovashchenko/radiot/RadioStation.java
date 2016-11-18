@@ -2,10 +2,12 @@ package com.lohika.ovashchenko.radiot;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 import android.widget.ArrayAdapter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +34,11 @@ public class RadioStation implements Comparable<RadioStation>, Serializable{
     }
 
     public List<Song> getSongs() {
-        return songs;
+        return this.songs;
+    }
+
+    public void addSong(Song song) {
+        this.songs.add(song);
     }
 
     // </editor-fold>  
@@ -62,7 +68,18 @@ public class RadioStation implements Comparable<RadioStation>, Serializable{
         private String artist;
         private String name;
         private String linkToSong;
-        private int image;
+        private String imageURL;
+        private Date pubDate;
+
+        public Drawable getImage() {
+            return image;
+        }
+
+        public void setImage(Drawable image) {
+            this.image = image;
+        }
+
+        private Drawable image;
 
         // <editor-fold desc="Getters And Setters">
         public String getArtist() {
@@ -89,30 +106,39 @@ public class RadioStation implements Comparable<RadioStation>, Serializable{
             this.linkToSong = linkToSong;
         }
 
-
-
-        public void setImage(int image) {
-            this.image = image;
+        public void setImageURL(String url) {
+            this.imageURL = url;
         }
+
+        public Date getPubDate() {
+            return pubDate;
+        }
+
+        public void setPubDate(Date pubDate) {
+            this.pubDate = pubDate;
+        }
+
+        public String getImageURL() {
+            return imageURL;
+        }
+
         // </editor-fold>
 
         public Song() {
             this.artist = "Rammstein";
             this.name = "Du Hust ";
             this.linkToSong = "some link";
-            this.image = 0;
+            this.imageURL = "";
         }
 
-        public Song(String artist, String name, String linkToSong, int image) {
+        public Song(String artist, String name, String linkToSong, String imageURL) {
             this();
             this.artist = artist;
             this.name = name;
             this.linkToSong = linkToSong;
-            this.image = image;
+            this.imageURL = imageURL;
         }
 
-        public int getImage() {
-            return image;
-        }
+
     }
 }
