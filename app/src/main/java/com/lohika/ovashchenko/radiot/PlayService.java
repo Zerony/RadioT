@@ -38,6 +38,5 @@ public class PlayService extends Service {
             mediaPlayer.start();
             //mPlayPause.setText(res.getString(R.string.pause));
         }
-
     }
 }

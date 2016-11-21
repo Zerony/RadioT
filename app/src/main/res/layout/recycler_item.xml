@@ -17,6 +17,7 @@
             android:layout_height="@dimen/play_size"
             android:id="@+id/song_image"
             android:layout_gravity="center|start"
+            android:layout_margin="4dp"
             />
         <!--android:scaleType="centerCrop" android:adjustViewBounds="true"-->
         <TextView

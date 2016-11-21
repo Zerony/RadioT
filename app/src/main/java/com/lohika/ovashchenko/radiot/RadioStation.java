@@ -65,7 +65,7 @@ public class RadioStation implements Serializable{
         this.name = name;
     }
 
-    public class Song {
+    public class Song implements Serializable {
         private String name;
         private String linkToSong;
         private String imageURL;

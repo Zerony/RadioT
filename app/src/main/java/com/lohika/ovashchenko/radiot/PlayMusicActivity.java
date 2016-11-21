@@ -1,6 +1,7 @@
 package com.lohika.ovashchenko.radiot;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -40,7 +41,7 @@ public class PlayMusicActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_music);
-
+        //startService(new Intent(this, PlayService.class));
         initToolbar();
         initViewPagerAndTabs();
         handler = new Handler() {
@@ -49,15 +50,9 @@ public class PlayMusicActivity extends AppCompatActivity {
                 super.handleMessage(msg);
                 switch (msg.what) {
                     case 0:
-                        //RadioApplication.getInstance().getRadioStationData().getStation(0);
-                        /*for (RadioStation itemStation : RadioApplication.getInstance().getRadioStationData().getAllRadioStations()) {
-                            pagerAdapter.addFragment(SongsFragment.createInstance(itemStation), itemStation.getName());
-                        }*/
-                        ((SongsFragment) pagerAdapter.getItem(0)).refreshData();
                         for (int i=0; i<pagerAdapter.getCount(); i++) {
                             ((SongsFragment)pagerAdapter.getItem(i)).refreshData();
                         }
-                        pagerAdapter.notifyDataSetChanged();
                         RadioApplication.getInstance().synced();
                         break;
                 }
@@ -83,10 +78,7 @@ public class PlayMusicActivity extends AppCompatActivity {
         pagerAdapter = new PagerAdapter(getSupportFragmentManager());
         RadioApplication application = (RadioApplication) getApplication();
 
-        //List<RadioStation> allStations = application.getRadioStationData().getAllRadioStations();
-        //SongsFragment fragment; // = SongsFragment.createInstance(itemStation);
         for (RadioStation itemStation : application.getRadioStationData().getAllRadioStations()) {
-            //fragment = SongsFragment.createInstance(itemStation);
             pagerAdapter.addFragment(SongsFragment.createInstance(itemStation), itemStation.getName());
         }
 

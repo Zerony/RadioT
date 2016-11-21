@@ -27,35 +27,35 @@ import java.util.List;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private List<RadioStation.Song> songs;
-    private Context context;
+    private RadioStation station;
 
-    public RecyclerAdapter(RadioStation station) {
-        this.songs = station.getSongs();
+    public void setStation(RadioStation station) {
+        this.station = station;
+        this.notifyDataSetChanged();
     }
 
-    public RecyclerAdapter(List<RadioStation.Song> songs) {
-        this.songs = songs;
+    public String getURL() {
+        if (station == null) {
+            return "";
+        }
+        return station.getURL();
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        this.context = parent.getContext();
-        View view = LayoutInflater.from(this.context).inflate(R.layout.recycler_item, parent, false);
+        View view = LayoutInflater.from( parent.getContext()).inflate(R.layout.recycler_item, parent, false);
         return RecyclerItemViewHolder.newInstance(view);
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         RecyclerItemViewHolder holder = (RecyclerItemViewHolder) viewHolder;
-        RadioStation.Song song = songs.get(position);
+        RadioStation.Song song = this.station.getSongs().get(position);
         String itemText = song.getName();
         if (song.getImageURL() != null) {
             Glide
-                    .with(context)
+                    .with(holder.mImageView.getContext())
                     .load(song.getImageURL())
-                    //.centerCrop()
-                    //.placeholder(R.drawable.rock)
                     .crossFade()
                     .into(holder.mImageView);
         }
@@ -66,11 +66,14 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public int getItemCount() {
-        if (songs == null) {
+        if (this.station == null) {
+            return 0;
+        }
+        if (this.station.getSongs() == null) {
             return 0;
         }
 
-        return songs.size();
+        return this.station.getSongs().size();
     }
 
     private static class RecyclerItemViewHolder extends RecyclerView.ViewHolder {
@@ -87,6 +90,5 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             return new RecyclerItemViewHolder(parent);
         }
     }
-
 
 }

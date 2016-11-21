@@ -13,7 +13,6 @@ public class SongsFragment extends Fragment {
     private final static String SAVED_RADIO_KEY = "RADIO_KEY";
     private final static String BUNDLE_RADIO_KEY = "STATION";
     private RecyclerAdapter recyclerAdapter;
-
     public static SongsFragment createInstance(RadioStation station) {
         SongsFragment songsFragment = new SongsFragment();
 
@@ -54,11 +53,13 @@ public class SongsFragment extends Fragment {
 
     private void setupRecyclerView(RecyclerView recyclerView, RadioStation station) {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setAdapter(recyclerAdapter);
-        recyclerAdapter = new RecyclerAdapter(station);
+        this.recyclerAdapter = new RecyclerAdapter();
+        recyclerAdapter.setStation(station);
+        recyclerView.setAdapter(this.recyclerAdapter);
     }
 
     public void refreshData() {
-        recyclerAdapter.notifyDataSetChanged();
+        RadioStation station = RadioApplication.getInstance().getRadioStationData().getStation(this.recyclerAdapter.getURL());
+        this.recyclerAdapter.setStation(station);
     }
 }
