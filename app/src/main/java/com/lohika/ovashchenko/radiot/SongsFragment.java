@@ -13,6 +13,7 @@ public class SongsFragment extends Fragment {
     private final static String SAVED_RADIO_KEY = "RADIO_KEY";
     private final static String BUNDLE_RADIO_KEY = "STATION";
     private RecyclerAdapter recyclerAdapter;
+
     public static SongsFragment createInstance(RadioStation station) {
         SongsFragment songsFragment = new SongsFragment();
 

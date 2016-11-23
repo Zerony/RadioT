@@ -19,6 +19,7 @@ import java.util.Map;
 public class RadioStation implements Serializable{
     private String name;
     private String URL;
+    private int id;
     private Map<String, Song> songs;
 
     // <editor-fold desc="Getters And Setters">  
@@ -34,8 +35,38 @@ public class RadioStation implements Serializable{
         return URL;
     }
 
-    public void setId(String URL) {
+    public void setURL(String URL) {
         this.URL = URL;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId (int id) {
+        this.id = id;
+    }
+
+    public long getLastSongTime() {
+        if (this.getLastSong() == null) {
+            return 0L;
+        }
+        return 0L;
+        //return this.getLastSong().getPubDate().getTime();
+    }
+
+    public Song getLastSong () {
+        if (this.songs.size() == 0) {
+            return null;
+        }
+        Song result = new Song();
+        result.setPubDate(new Date(0L));
+        for (Song item : this.songs.values()) {
+            if (item.getPubDate().getTime() > result.getPubDate().getTime()) {
+                result = item;
+            }
+        }
+        return result;
     }
 
     public List<Song> getSongs() {
@@ -54,15 +85,22 @@ public class RadioStation implements Serializable{
     }
     // </editor-fold>  
 
-    public RadioStation(String URL) {
+    public RadioStation() {
         name = "NoName";
-        this.URL = URL;
+        this.URL = "";
         songs = new LinkedHashMap<>();
     }
 
     public RadioStation(String name, String URL) {
-        this(URL);
+        this();
         this.name = name;
+        this.URL = URL;
+        this.id = 0;
+    }
+
+    public RadioStation(String name, String URL, int id) {
+        this(name, URL);
+        this.id = id;
     }
 
     public class Song implements Serializable {
@@ -102,6 +140,10 @@ public class RadioStation implements Serializable{
 
         public String getImageURL() {
             return imageURL;
+        }
+
+        public int getStationId() {
+            return RadioStation.this.getId();
         }
         // </editor-fold>
 

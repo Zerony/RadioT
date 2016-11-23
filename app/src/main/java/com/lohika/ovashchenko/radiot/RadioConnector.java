@@ -1,5 +1,6 @@
 package com.lohika.ovashchenko.radiot;
 
+import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,8 +26,8 @@ import java.util.regex.Pattern;
  * Created by ovashchenko on 11/14/16.
  */
 public class RadioConnector implements Runnable{
-    Handler handler;
     private static String LOG_TAG = "XML PARSER";
+    private Handler handler;
     RadioStation radioStation;
     public RadioConnector(Handler handler, RadioStation radioStation) {
         this.handler = handler;
@@ -37,7 +39,6 @@ public class RadioConnector implements Runnable{
         if (RadioApplication.getInstance().isSynced()) {
             return;
         }
-        //radioStation = new RadioStation("RadioT", "http://feeds.rucast.net/radio-t");
         connect(radioStation.getURL());
     }
 
@@ -68,7 +69,8 @@ public class RadioConnector implements Runnable{
             factory.setNamespaceAware(true);
             XmlPullParser xpp = factory.newPullParser();
             xpp.setInput(new StringReader(text));
-            while (xpp.getEventType() != XmlPullParser.END_DOCUMENT) {
+            boolean lastSongFound = false;
+            while (xpp.getEventType() != XmlPullParser.END_DOCUMENT && !lastSongFound) {
                 Log.d(LOG_TAG, "START_TAG: name = " + xpp.getName()
                         + ", depth = " + xpp.getDepth() + ", attrCount = "
                         + xpp.getAttributeCount());
@@ -96,20 +98,29 @@ public class RadioConnector implements Runnable{
                                 if (m.find()) {
                                     song.setImageURL(m.group(1));
                                 }
+                            } else if (xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals("pubDate")) {
+                                xpp.next();
+                                long pubDate2 = Date.parse(xpp.getText());
+                                radioStation.getLastSongTime();
+                                if (radioStation.getLastSongTime() >= pubDate2) {
+                                    lastSongFound = true;
+                                    break;
+                                }
+                                Date pubDate = new Date(pubDate2);
+                                song.setPubDate(pubDate);
                             }
                             xpp.next();
                         }
-                        radioStation.addSong(song);
-                        /*for (int i = 0; i < xpp.getAttributeCount(); i++) {
-                            tmp = tmp + xpp.getAttributeName(i) + " = "
-                                    + xpp.getAttributeValue(i) + ", ";
-                        }*/
-                        // if (!TextUtils.isEmpty(tmp))
-                        // Log.d(LOG_TAG, "Attributes: " + tmp);
+                        if (!lastSongFound) {
+                            radioStation.addSong(song);
+                        }
                 }
                 xpp.next();
             }
             Log.d(LOG_TAG, "END_DOCUMENT");
+            RadioDB db = new RadioDB(RadioApplication.getInstance());
+            db.open();
+            db.addSongs(radioStation.getSongs());
 
             return radioStation;
         } catch (XmlPullParserException e) {

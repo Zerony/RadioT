@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
@@ -13,6 +14,7 @@ import android.support.annotation.Nullable;
  */
 public class PlayService extends Service {
     private MediaPlayer mediaPlayer;
+    private final IBinder mBinder = new PlayBinder();
 
     @Override
     public void onCreate() {
@@ -24,19 +26,27 @@ public class PlayService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return mBinder;
     }
 
     private void playMusic() {
-        Resources res = getResources();
-
-        if (mediaPlayer.isPlaying()) {
-            //mPlayPause.setText(res.getString(R.string.play));
-            mediaPlayer.pause();
-        } else {
+//        if (mediaPlayer.isPlaying()) {
+//            //mPlayPause.setText(res.getString(R.string.play));
+//            mediaPlayer.pause();
+//        } else {
             mediaPlayer = MediaPlayer.create(this, Uri.parse("http://n4.radio-t.com/rtfiles/rt_podcast519.mp3"));
             mediaPlayer.start();
             //mPlayPause.setText(res.getString(R.string.pause));
+            //}
+    }
+
+    public void pause() {
+        mediaPlayer.pause();
+    }
+
+    public class PlayBinder extends Binder {
+        PlayService getService() {
+            return PlayService.this;
         }
     }
 }
