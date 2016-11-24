@@ -10,8 +10,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by ovashchenko on 11/7/16.
@@ -20,8 +22,8 @@ public class RadioStation implements Serializable{
     private String name;
     private String URL;
     private int id;
-    private Map<String, Song> songs;
-
+    private LinkedHashSet<Song> songs;
+    private Song lastSyncedSong;
     // <editor-fold desc="Getters And Setters">  
     public String getName() {
         return name;
@@ -48,47 +50,60 @@ public class RadioStation implements Serializable{
     }
 
     public long getLastSongTime() {
-        if (this.getLastSong() == null) {
+        if (this.lastSyncedSong == null) {
             return 0L;
         }
-        return 0L;
-        //return this.getLastSong().getPubDate().getTime();
+        return lastSyncedSong.getPubDate().getTime();
     }
 
-    public Song getLastSong () {
+    public void fillLastSyncedSong() {
         if (this.songs.size() == 0) {
-            return null;
+            return;
         }
-        Song result = new Song();
-        result.setPubDate(new Date(0L));
-        for (Song item : this.songs.values()) {
-            if (item.getPubDate().getTime() > result.getPubDate().getTime()) {
-                result = item;
+        lastSyncedSong = new Song();
+        lastSyncedSong.setPubDate(new Date(0L));
+        for (Song item : this.songs) {
+            if (item.getPubDate().getTime() > lastSyncedSong.getPubDate().getTime()) {
+                lastSyncedSong = item;
             }
         }
-        return result;
     }
 
-    public List<Song> getSongs() {
-        List<Song> result = new ArrayList<>();
-        for(Song item : this.songs.values()) {
-            result.add(item);
+    public Set<Song> getSongs() {
+        return this.songs;
+    }
+
+    public Song getSong(int index) {
+        if (this.songs.size() > index) {
+            int i = 0;
+            Song result = new Song();
+            for (Song item : this.songs) {
+                if (i == index) {
+                    result = item;
+                    break;
+                }
+                i++;
+            }
+            return result;
+        } else {
+            return null;
         }
-        return result;
     }
 
     public void addSong(Song song) {
-        if (this.songs.containsKey(song.getLinkToSong())) {
-            return;
-        }
-        this.songs.put(song.getLinkToSong(), song);
+        this.songs.add(song);
+    }
+
+    public void clearSongs() {
+        this.songs.removeAll(this.songs);
     }
     // </editor-fold>  
 
+    // <editor-fold desc="Constructors">  
     public RadioStation() {
         name = "NoName";
         this.URL = "";
-        songs = new LinkedHashMap<>();
+        songs = new LinkedHashSet<>();
     }
 
     public RadioStation(String name, String URL) {
@@ -102,16 +117,27 @@ public class RadioStation implements Serializable{
         this(name, URL);
         this.id = id;
     }
+    //</editor-fold>  
 
-    public class Song implements Serializable {
+    //<editor-fold desc="Song class">
+    public static class Song implements Serializable {
         private String name;
         private String linkToSong;
         private String imageURL;
         private Date pubDate;
+        private int stationId;
 
         // <editor-fold desc="Getters And Setters">
         public String getName() {
             return name;
+        }
+
+        public int getStationId() {
+            return stationId;
+        }
+
+        public void setStationId(int stationId) {
+            this.stationId = stationId;
         }
 
         public void setName(String name) {
@@ -142,9 +168,6 @@ public class RadioStation implements Serializable{
             return imageURL;
         }
 
-        public int getStationId() {
-            return RadioStation.this.getId();
-        }
         // </editor-fold>
 
         public Song() {
@@ -154,13 +177,19 @@ public class RadioStation implements Serializable{
             this.pubDate = new Date();
         }
 
-        public Song(String name, String linkToSong, String imageURL, Date pubDate) {
+        @Override
+        public int hashCode() {
+            return this.linkToSong.hashCode();
+        }
+
+        public Song(String name, String linkToSong, String imageURL, Date pubDate, int stationId) {
             this();
             this.name = name;
             this.linkToSong = linkToSong;
             this.imageURL = imageURL;
             this.pubDate = pubDate;
-
+            this.stationId = stationId;
         }
     }
+    //</editor-fold>
 }

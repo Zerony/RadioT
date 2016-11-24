@@ -20,10 +20,9 @@ import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
+import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 
@@ -50,20 +49,41 @@ public class PlayMusicActivity extends AppCompatActivity implements LoaderManage
         }
     };
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle bndl) {
+        return new RadioCursorLoader(this, db);
+    }
 
-    // <editor-fold desc="ClickListener">  
-    private View.OnClickListener onClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-//                case R.id.play_pause:
-//                    playMusic();
-//                    break;
-            }
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        RadioApplication.RadioStationData radioStationData = RadioApplication.getInstance().getRadioStationData();
+        radioStationData.clearSongs();
+        radioStationData.addSongsToRadioData(RadioDB.cursorToListSongs(cursor));
 
+        for (RadioStation item : radioStationData.getAllRadioStations()) {
+            item.fillLastSyncedSong();
         }
-    };
-    // </editor-fold>
+
+        if (!RadioApplication.getInstance().isSynced()) {
+            Thread thread = new Thread(new RadioConnector(handler, RadioApplication.getInstance().getRadioStationData().getStation("http://feeds.rucast.net/radio-t")));
+            thread.start();
+        }
+
+        Handler refreshAdapterHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                for (int i=0; i<pagerAdapter.getCount(); i++) {
+                    ((SongsFragment)pagerAdapter.getItem(i)).refreshData();
+                }
+            }
+        };
+        refreshAdapterHandler.sendEmptyMessage(0);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+    }
 
     @Override
     protected void onStop() {
@@ -84,9 +104,6 @@ public class PlayMusicActivity extends AppCompatActivity implements LoaderManage
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_music);
-
-//        Intent intent = new Intent(this, PlayService.class);
-//        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         db = new RadioDB(this);
         db.open();
         initToolbar();
@@ -97,56 +114,24 @@ public class PlayMusicActivity extends AppCompatActivity implements LoaderManage
                 super.handleMessage(msg);
                 switch (msg.what) {
                     case 0:
-                        for (int i=0; i<pagerAdapter.getCount(); i++) {
+                        RadioApplication.getInstance().synced();
+                        restartLoader();
+                        //lanchLoader();
+                        //getSupportLoaderManager().initLoader(0, null, this);
+                        /*for (int i=0; i<pagerAdapter.getCount(); i++) {
                             ((SongsFragment)pagerAdapter.getItem(i)).refreshData();
                         }
-                        RadioApplication.getInstance().synced();
+                        RadioApplication.getInstance().synced();*/
                         break;
                 }
             }
         };
 
-        /*if (!RadioApplication.getInstance().isSynced()) {
-            Thread thread = new Thread(new RadioConnector(handler, RadioApplication.getInstance().getRadioStationData().getStation("http://feeds.rucast.net/radio-t")));
-            thread.start();
-        }*/
-
         getSupportLoaderManager().initLoader(0, null, this);
     }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle bndl) {
-        return new RadioCursorLoader(this, db);
+    private void restartLoader() {
+        getSupportLoaderManager().restartLoader(0, null, this);
     }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        //RadioStation station = RadioApplication.getInstance().getRadioStationData().getStation("http://feeds.rucast.net/radio-t");
-        RadioApplication.getInstance().getRadioStationData().addSongsToRadioData(RadioDB.cursorToListSongs(cursor));
-
-        //RadioStation.Song song = station.new Song("SonName", "", "https://pp.vk.me/c637717/v637717670/148ef/HbtJRf52u9g.jpg", new Date(System.currentTimeMillis()));
-
-        //station.addSong(song);
-        //for (int i=0; i<pagerAdapter.getCount(); i++) {
-               // ((SongsFragment)pagerAdapter.getItem(i)).refreshData();
-        //}
-        //RadioDB.addSongsToRadioData(RadioDB.cursorToListSongs(cursor));
-        if (!RadioApplication.getInstance().isSynced()) {
-            Thread thread = new Thread(new RadioConnector(handler, RadioApplication.getInstance().getRadioStationData().getStation("http://feeds.rucast.net/radio-t")));
-            thread.start();
-        }
-
-
-        //for (int i=0; i<pagerAdapter.getCount(); i++) {
-        //    ((SongsFragment)pagerAdapter.getItem(i)).refreshData();
-        //}
-        //scAdapter.swapCursor(cursor);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-    }
-
 
     private void initToolbar() {
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);

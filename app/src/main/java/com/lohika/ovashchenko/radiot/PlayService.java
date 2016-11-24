@@ -16,6 +16,10 @@ public class PlayService extends Service {
     private MediaPlayer mediaPlayer;
     private final IBinder mBinder = new PlayBinder();
 
+    public void pause() {
+        mediaPlayer.pause();
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -30,19 +34,11 @@ public class PlayService extends Service {
     }
 
     private void playMusic() {
-//        if (mediaPlayer.isPlaying()) {
-//            //mPlayPause.setText(res.getString(R.string.play));
-//            mediaPlayer.pause();
-//        } else {
             mediaPlayer = MediaPlayer.create(this, Uri.parse("http://n4.radio-t.com/rtfiles/rt_podcast519.mp3"));
             mediaPlayer.start();
-            //mPlayPause.setText(res.getString(R.string.pause));
-            //}
     }
 
-    public void pause() {
-        mediaPlayer.pause();
-    }
+
 
     public class PlayBinder extends Binder {
         PlayService getService() {

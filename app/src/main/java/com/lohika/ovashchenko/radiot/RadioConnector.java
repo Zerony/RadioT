@@ -18,7 +18,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,7 +30,7 @@ import java.util.regex.Pattern;
 public class RadioConnector implements Runnable{
     private static String LOG_TAG = "XML PARSER";
     private Handler handler;
-    RadioStation radioStation;
+    private RadioStation radioStation;
     public RadioConnector(Handler handler, RadioStation radioStation) {
         this.handler = handler;
         this.radioStation = radioStation;
@@ -54,7 +56,6 @@ public class RadioConnector implements Runnable{
                 InputStream instream = entity.getContent();
                 String result= convertStreamToString(instream);
                 parseXML(result);
-                RadioApplication.getInstance().getRadioStationData().addStation(radioStation);
                 handler.sendEmptyMessage(0);
             }
 
@@ -70,12 +71,14 @@ public class RadioConnector implements Runnable{
             XmlPullParser xpp = factory.newPullParser();
             xpp.setInput(new StringReader(text));
             boolean lastSongFound = false;
+            List<RadioStation.Song> songsToInsert = new ArrayList<>();
             while (xpp.getEventType() != XmlPullParser.END_DOCUMENT && !lastSongFound) {
                 Log.d(LOG_TAG, "START_TAG: name = " + xpp.getName()
                         + ", depth = " + xpp.getDepth() + ", attrCount = "
                         + xpp.getAttributeCount());
                 if ( xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals("item")) {
-                        RadioStation.Song song = radioStation.new Song();
+                        RadioStation.Song song = new RadioStation.Song();
+                        song.setStationId(radioStation.getId());
                         while (xpp.getEventType() != XmlPullParser.END_TAG || !xpp.getName().equals("item")) {
 
                             if (xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals("title")) {
@@ -101,7 +104,7 @@ public class RadioConnector implements Runnable{
                             } else if (xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals("pubDate")) {
                                 xpp.next();
                                 long pubDate2 = Date.parse(xpp.getText());
-                                radioStation.getLastSongTime();
+
                                 if (radioStation.getLastSongTime() >= pubDate2) {
                                     lastSongFound = true;
                                     break;
@@ -112,7 +115,7 @@ public class RadioConnector implements Runnable{
                             xpp.next();
                         }
                         if (!lastSongFound) {
-                            radioStation.addSong(song);
+                            songsToInsert.add(song);
                         }
                 }
                 xpp.next();
@@ -120,7 +123,7 @@ public class RadioConnector implements Runnable{
             Log.d(LOG_TAG, "END_DOCUMENT");
             RadioDB db = new RadioDB(RadioApplication.getInstance());
             db.open();
-            db.addSongs(radioStation.getSongs());
+            db.addSongs(songsToInsert);
 
             return radioStation;
         } catch (XmlPullParserException e) {

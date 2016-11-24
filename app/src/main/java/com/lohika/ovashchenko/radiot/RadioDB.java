@@ -74,12 +74,15 @@ public class RadioDB {
             int stationIdColumn = cursor.getColumnIndex(COLUMN_STATION_ID);
 
             do{
-                RadioStation station = RadioApplication.getInstance().getRadioStationData().getStationByIndex(cursor.getInt(stationIdColumn));
-                RadioStation.Song song = station.new Song(
+                //RadioStation station = RadioApplication.getInstance().getRadioStationData().getStationByIndex(cursor.getInt(stationIdColumn));
+                RadioStation.Song song = new RadioStation.Song(
                         cursor.getString(nameColumn),
                         cursor.getString(songURLColumn),
                         cursor.getString(imageURLColumn),
-                        new Date (cursor.getLong(createdDateColumn)));
+                        new Date (cursor.getLong(createdDateColumn)),
+                        cursor.getInt(stationIdColumn)
+                        );
+
                 result.add(song);
             } while (cursor.moveToNext());
         }
@@ -104,7 +107,7 @@ public class RadioDB {
     }
 
     public Cursor getAllSongs() {
-        return mDB.query(DB_TABLE_SONGS, null, null, null, null, null, null);
+        return mDB.query(DB_TABLE_SONGS, null, null, null, null, null, COLUMN_CREATED_DATE + " desc");
     }
 
     public Cursor getAllStations() {

@@ -6,6 +6,8 @@ package com.lohika.ovashchenko.radiot;
 
 
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,40 +18,33 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 
 
-public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
+public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.RecyclerItemViewHolder> {
     private RadioStation station;
 
     public void setStation(RadioStation station) {
         this.station = station;
-        this.notifyDataSetChanged();
-    }
-
-    public String getURL() {
-        if (station == null) {
-            return "";
-        }
-        return station.getURL();
     }
 
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from( parent.getContext()).inflate(R.layout.recycler_item, parent, false);
         return RecyclerItemViewHolder.newInstance(view);
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
-        RecyclerItemViewHolder holder = (RecyclerItemViewHolder) viewHolder;
-        RadioStation.Song song = this.station.getSongs().get(position);
+    public void onBindViewHolder(RecyclerItemViewHolder holder, int position) {
+        RadioStation.Song song = station.getSong(position);
         String itemText = song.getName();
-        if (song.getImageURL() != null) {
+        if (TextUtils.isEmpty(song.getImageURL())) {
+            song.setImageURL("http://cs8.pikabu.ru/post_img/2016/11/23/5/1479882803155027024.jpg");
+        }
+
             Glide
                     .with(holder.mImageView.getContext())
                     .load(song.getImageURL())
                     .crossFade()
                     .into(holder.mImageView);
-        }
+
 
         holder.mItemTextView.setText(itemText);
 
@@ -61,7 +56,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         };
         holder.mPlayPause.setOnClickListener(onClickListener);
     }
-
 
     @Override
     public int getItemCount() {
@@ -75,7 +69,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return this.station.getSongs().size();
     }
 
-    private static class RecyclerItemViewHolder extends RecyclerView.ViewHolder {
+    static class RecyclerItemViewHolder extends RecyclerView.ViewHolder {
         private final TextView mItemTextView;
         private final ImageView mImageView;
         private final ImageButton mPlayPause;

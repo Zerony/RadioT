@@ -2,9 +2,9 @@ package com.lohika.ovashchenko.radiot;
 
 import android.app.Application;
 import android.content.res.Configuration;
-import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -68,16 +68,15 @@ public class RadioApplication extends Application {
         db.addStation(radioT);
         radioT.setId(db.getStationId(radioT));
 
-        RadioStation.Song song = radioT.new Song("SonName", "", "https://pp.vk.me/c637717/v637717670/148ef/HbtJRf52u9g.jpg", new Date(System.currentTimeMillis()));
+        Calendar rightNow = Calendar.getInstance();
+        rightNow.add(Calendar.MONTH, -1);
+        RadioStation.Song song = new RadioStation.Song("SonName", "", "https://pp.vk.me/c637717/v637717670/148ef/HbtJRf52u9g.jpg", new Date(rightNow.getTimeInMillis()), radioT.getId());
         List<RadioStation.Song> toInsert = new ArrayList<>();
         toInsert.add(song);
         db.addSong(song);
-        //radioT.addSong(song);
-
 
         RadioStationData.getInstance().addStation(radioT);
 
-        //db.close();
     }
 
     public static class RadioStationData {
@@ -97,7 +96,16 @@ public class RadioApplication extends Application {
         }
 
         public void addStation(RadioStation radioStation) {
+            if (allRadioStations.containsKey(radioStation.getURL())) {
+                return;
+            }
             allRadioStations.put(radioStation.getURL(), radioStation);
+        }
+
+        public void clearSongs() {
+            for (RadioStation item : getAllRadioStations()) {
+                item.clearSongs();
+            }
         }
 
         public void addSongsToRadioData(List<RadioStation.Song> songs) {

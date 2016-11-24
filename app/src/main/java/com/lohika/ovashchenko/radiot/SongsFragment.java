@@ -60,7 +60,7 @@ public class SongsFragment extends Fragment {
     }
 
     public void refreshData() {
-        RadioStation station = RadioApplication.getInstance().getRadioStationData().getStation(this.recyclerAdapter.getURL());
-        this.recyclerAdapter.setStation(station);
+        //RadioStation station = RadioApplication.getInstance().getRadioStationData().getStation(this.recyclerAdapter.getURL());
+        this.recyclerAdapter.notifyDataSetChanged(); //setStation(station);
     }
 }
