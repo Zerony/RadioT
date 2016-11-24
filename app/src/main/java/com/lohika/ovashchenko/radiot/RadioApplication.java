@@ -3,10 +3,9 @@ package com.lohika.ovashchenko.radiot;
 import android.app.Application;
 import android.content.res.Configuration;
 
-import java.util.ArrayList;
-import java.util.Calendar;
+import com.lohika.ovashchenko.radiot.parser.RadioTParser;
+
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -63,17 +62,18 @@ public class RadioApplication extends Application {
         }
         RadioDB db = new RadioDB(getInstance());
         RadioStation radioT = new RadioStation("RadioT", "http://feeds.rucast.net/radio-t");
+        radioT.setParser(new RadioTParser());
         db.open();
-        db.delAllSong();
+        //db.delAllSong();
         db.addStation(radioT);
         radioT.setId(db.getStationId(radioT));
 
-        Calendar rightNow = Calendar.getInstance();
+        /*Calendar rightNow = Calendar.getInstance();
         rightNow.add(Calendar.MONTH, -1);
         RadioStation.Song song = new RadioStation.Song("SonName", "", "https://pp.vk.me/c637717/v637717670/148ef/HbtJRf52u9g.jpg", new Date(rightNow.getTimeInMillis()), radioT.getId());
         List<RadioStation.Song> toInsert = new ArrayList<>();
         toInsert.add(song);
-        db.addSong(song);
+        db.addSong(song);*/
 
         RadioStationData.getInstance().addStation(radioT);
 

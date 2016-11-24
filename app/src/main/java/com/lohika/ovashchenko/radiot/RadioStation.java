@@ -5,6 +5,8 @@ import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.widget.ArrayAdapter;
 
+import com.lohika.ovashchenko.radiot.parser.RadioXMLParser;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,10 +22,12 @@ import java.util.Set;
  */
 public class RadioStation implements Serializable{
     private String name;
-    private String URL;
+    private final String URL;
     private int id;
     private LinkedHashSet<Song> songs;
     private Song lastSyncedSong;
+    private RadioXMLParser parser;
+
     // <editor-fold desc="Getters And Setters">  
     public String getName() {
         return name;
@@ -35,10 +39,6 @@ public class RadioStation implements Serializable{
 
     public String getURL() {
         return URL;
-    }
-
-    public void setURL(String URL) {
-        this.URL = URL;
     }
 
     public int getId() {
@@ -54,19 +54,6 @@ public class RadioStation implements Serializable{
             return 0L;
         }
         return lastSyncedSong.getPubDate().getTime();
-    }
-
-    public void fillLastSyncedSong() {
-        if (this.songs.size() == 0) {
-            return;
-        }
-        lastSyncedSong = new Song();
-        lastSyncedSong.setPubDate(new Date(0L));
-        for (Song item : this.songs) {
-            if (item.getPubDate().getTime() > lastSyncedSong.getPubDate().getTime()) {
-                lastSyncedSong = item;
-            }
-        }
     }
 
     public Set<Song> getSongs() {
@@ -97,24 +84,43 @@ public class RadioStation implements Serializable{
     public void clearSongs() {
         this.songs.removeAll(this.songs);
     }
+
+    public void setParser(RadioXMLParser parser) {
+        this.parser = parser;
+    }
     // </editor-fold>  
+
+    public List<Song> parseXML(String text) {
+        return this.parser.parseXML(text, this);
+    }
+
+    public void fillLastSyncedSong() {
+        if (this.songs.size() == 0) {
+            return;
+        }
+        lastSyncedSong = new Song();
+        lastSyncedSong.setPubDate(new Date(0L));
+        for (Song item : this.songs) {
+            if (item.getPubDate().getTime() > lastSyncedSong.getPubDate().getTime()) {
+                lastSyncedSong = item;
+            }
+        }
+    }
 
     // <editor-fold desc="Constructors">  
     public RadioStation() {
-        name = "NoName";
-        this.URL = "";
-        songs = new LinkedHashSet<>();
+        this("NoName", "");
     }
 
     public RadioStation(String name, String URL) {
-        this();
-        this.name = name;
-        this.URL = URL;
-        this.id = 0;
+        this(name, URL, 0);
     }
 
     public RadioStation(String name, String URL, int id) {
-        this(name, URL);
+        this.name = name;
+        this.URL = URL;
+        this.id = 0;
+        songs = new LinkedHashSet<>();
         this.id = id;
     }
     //</editor-fold>  

@@ -125,7 +125,6 @@ public class RadioDB {
     }
 
     public int addSongs(Collection<RadioStation.Song> songs) {
-
         Map<String, RadioStation.Song> songsInDB  = new HashMap<>();
         for (RadioStation.Song item : cursorToListSongs(getAllSongs())) {
             songsInDB.put(item.getLinkToSong(), item);

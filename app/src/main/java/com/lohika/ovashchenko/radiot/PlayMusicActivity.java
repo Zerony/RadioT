@@ -65,7 +65,7 @@ public class PlayMusicActivity extends AppCompatActivity implements LoaderManage
         }
 
         if (!RadioApplication.getInstance().isSynced()) {
-            Thread thread = new Thread(new RadioConnector(handler, RadioApplication.getInstance().getRadioStationData().getStation("http://feeds.rucast.net/radio-t")));
+            Thread thread = new Thread(new RadioConnector(handler, RadioApplication.getInstance().getRadioStationData().getAllRadioStations()));
             thread.start();
         }
 

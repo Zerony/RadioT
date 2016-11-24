@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -30,8 +31,8 @@ import java.util.regex.Pattern;
 public class RadioConnector implements Runnable{
     private static String LOG_TAG = "XML PARSER";
     private Handler handler;
-    private RadioStation radioStation;
-    public RadioConnector(Handler handler, RadioStation radioStation) {
+    private Collection<RadioStation> radioStation;
+    public RadioConnector(Handler handler, Collection<RadioStation> radioStation) {
         this.handler = handler;
         this.radioStation = radioStation;
     }
@@ -41,13 +42,18 @@ public class RadioConnector implements Runnable{
         if (RadioApplication.getInstance().isSynced()) {
             return;
         }
-        connect(radioStation.getURL());
+        for (RadioStation item : this.radioStation) {
+            connect(item);
+        }
     }
 
-    private void connect(String url) {
+    private void connect(RadioStation station) {
         HttpClient httpclient = new DefaultHttpClient();
-        HttpGet httpget = new HttpGet(url);
+        HttpGet httpget = new HttpGet(station.getURL());
         HttpResponse response;
+        RadioDB db = new RadioDB(RadioApplication.getInstance());
+        db.open();
+
         try {
             response = httpclient.execute(httpget);
             Log.i("Response status",response.getStatusLine().toString());
@@ -55,8 +61,11 @@ public class RadioConnector implements Runnable{
             if (entity != null) {
                 InputStream instream = entity.getContent();
                 String result= convertStreamToString(instream);
-                parseXML(result);
-                handler.sendEmptyMessage(0);
+                List<RadioStation.Song> songsToInsert = station.parseXML(result); //parseXML(result, station);
+                int totalInserted = db.addSongs(songsToInsert);
+                if (totalInserted > 0) {
+                    handler.sendEmptyMessage(0);
+                }
             }
 
         } catch (Exception e) {
@@ -64,7 +73,7 @@ public class RadioConnector implements Runnable{
         }
     }
 
-    private RadioStation parseXML(String text) {
+    private List<RadioStation.Song> parseXML(String text, RadioStation radioStation) {
         try {
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             factory.setNamespaceAware(true);
@@ -121,11 +130,9 @@ public class RadioConnector implements Runnable{
                 xpp.next();
             }
             Log.d(LOG_TAG, "END_DOCUMENT");
-            RadioDB db = new RadioDB(RadioApplication.getInstance());
-            db.open();
-            db.addSongs(songsToInsert);
 
-            return radioStation;
+
+            return songsToInsert;
         } catch (XmlPullParserException e) {
             e.printStackTrace();
         } catch (IOException e) {
