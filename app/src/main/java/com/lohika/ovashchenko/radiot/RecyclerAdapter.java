@@ -7,7 +7,6 @@ package com.lohika.ovashchenko.radiot;
 
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +19,7 @@ import com.bumptech.glide.Glide;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.RecyclerItemViewHolder> {
     private RadioStation station;
+    private ImageView lastPlayingSong;
 
     public void setStation(RadioStation station) {
         this.station = station;
@@ -32,25 +32,44 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
     }
 
     @Override
-    public void onBindViewHolder(RecyclerItemViewHolder holder, int position) {
-        RadioStation.Song song = station.getSong(position);
+    public void onBindViewHolder(final RecyclerItemViewHolder holder, int position) {
+        final RadioStation.Song song = station.getSong(position);
         String itemText = song.getName();
         if (TextUtils.isEmpty(song.getImageURL())) {
             song.setImageURL("http://cs8.pikabu.ru/post_img/2016/11/23/5/1479882803155027024.jpg");
         }
 
-            Glide
-                    .with(holder.mImageView.getContext())
-                    .load(song.getImageURL())
-                    .crossFade()
-                    .into(holder.mImageView);
+        Glide
+                .with(holder.mImageView.getContext())
+                .load(song.getImageURL())
+                .crossFade()
+                .into(holder.mImageView);
 
 
         holder.mItemTextView.setText(itemText);
-
         View.OnClickListener onClickListener = new View.OnClickListener() {
+            private String status = Constants.PLAY;
             @Override
             public void onClick(View v) {
+                //RadioApplication.getInstance().playPause(song.getLinkToSong());
+                if (lastPlayingSong != null && lastPlayingSong != holder.mPlayPause) {
+                    lastPlayingSong.setImageResource(R.drawable.play);
+                    RadioApplication.getInstance().pausePlaying();
+                    holder.mPlayPause.setImageResource(R.drawable.pause);
+                    lastPlayingSong = holder.mPlayPause;
+                    status = Constants.PAUSE;
+                    RadioApplication.getInstance().playSong(song.getLinkToSong());
+                } else if (status.equals(Constants.PLAY)) {
+                    holder.mPlayPause.setImageResource(R.drawable.pause);
+                    lastPlayingSong = holder.mPlayPause;
+                    status = Constants.PAUSE;
+                    RadioApplication.getInstance().playSong(song.getLinkToSong());
+                } else {
+                    holder.mPlayPause.setImageResource(R.drawable.play);
+                    status = Constants.PLAY;
+                    RadioApplication.getInstance().pausePlaying();
+                }
+
 
             }
         };

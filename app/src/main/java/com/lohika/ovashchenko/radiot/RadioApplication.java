@@ -1,6 +1,9 @@
 package com.lohika.ovashchenko.radiot;
 
 import android.app.Application;
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.content.res.Configuration;
 
 import com.lohika.ovashchenko.radiot.parser.RadioTParser;
@@ -18,7 +21,8 @@ import java.util.Map;
 public class RadioApplication extends Application {
     private static RadioApplication instance;
     private boolean isSynced = false;
-
+    private boolean isPlaying = false;
+    private String playingSong = "";
     public void synced() {
         isSynced = true;
     }
@@ -29,6 +33,40 @@ public class RadioApplication extends Application {
 
     public static RadioApplication getInstance() {
         return instance;
+    }
+
+    public String getPlayingSong() {
+        return playingSong;
+    }
+
+    /*public void playPause(String url){
+        if (isPlaying) {
+            pausePlaying();
+            //playingSong = "";
+        } else {
+            playSong(url);
+            playingSong = url;
+        }
+    }*/
+
+    public void playSong(String url) {
+        Intent playbackServiceIntent = new Intent(this, PlayService.class);
+        playbackServiceIntent.putExtra(Constants.SONG_URL, url);
+        playbackServiceIntent.setAction(PlayService.ACTION_PLAY);
+        startService(playbackServiceIntent);
+
+        isPlaying = true;
+
+    }
+
+    public void pausePlaying() {
+        if (!isPlaying) {
+            return;
+        }
+        Intent playbackServiceIntent = new Intent(this, PlayService.class);
+        playbackServiceIntent.setAction(PlayService.ACTION_PAUSE);
+        startService(playbackServiceIntent);
+        isPlaying = false;
     }
 
     @Override

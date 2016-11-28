@@ -34,7 +34,7 @@ public class PlayMusicActivity extends AppCompatActivity implements LoaderManage
     private boolean mBound = false;
 
 
-    private ServiceConnection mConnection = new ServiceConnection() {
+    /*private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
@@ -47,7 +47,7 @@ public class PlayMusicActivity extends AppCompatActivity implements LoaderManage
         public void onServiceDisconnected(ComponentName arg0) {
             mBound = false;
         }
-    };
+    };*/
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle bndl) {
@@ -86,15 +86,6 @@ public class PlayMusicActivity extends AppCompatActivity implements LoaderManage
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        if (this.mBound) {
-            unbindService(this.mConnection);
-            this.mBound = false;
-        }
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         db.close();
@@ -116,12 +107,6 @@ public class PlayMusicActivity extends AppCompatActivity implements LoaderManage
                     case 0:
                         RadioApplication.getInstance().synced();
                         restartLoader();
-                        //lanchLoader();
-                        //getSupportLoaderManager().initLoader(0, null, this);
-                        /*for (int i=0; i<pagerAdapter.getCount(); i++) {
-                            ((SongsFragment)pagerAdapter.getItem(i)).refreshData();
-                        }
-                        RadioApplication.getInstance().synced();*/
                         break;
                 }
             }
@@ -129,6 +114,7 @@ public class PlayMusicActivity extends AppCompatActivity implements LoaderManage
 
         getSupportLoaderManager().initLoader(0, null, this);
     }
+
     private void restartLoader() {
         getSupportLoaderManager().restartLoader(0, null, this);
     }
