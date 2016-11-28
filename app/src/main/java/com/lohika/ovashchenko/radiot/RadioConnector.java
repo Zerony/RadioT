@@ -1,7 +1,9 @@
 package com.lohika.ovashchenko.radiot;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import org.apache.http.HttpEntity;
@@ -45,6 +47,7 @@ public class RadioConnector implements Runnable{
         for (RadioStation item : this.radioStation) {
             connect(item);
         }
+        RadioApplication.getInstance().synced();
     }
 
     private void connect(RadioStation station) {

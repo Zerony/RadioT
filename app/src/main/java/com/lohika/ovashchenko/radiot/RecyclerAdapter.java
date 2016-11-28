@@ -51,7 +51,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
             private String status = Constants.PLAY;
             @Override
             public void onClick(View v) {
-                //RadioApplication.getInstance().playPause(song.getLinkToSong());
                 if (lastPlayingSong != null && lastPlayingSong != holder.mPlayPause) {
                     lastPlayingSong.setImageResource(R.drawable.play);
                     RadioApplication.getInstance().pausePlaying();

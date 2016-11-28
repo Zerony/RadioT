@@ -1,14 +1,9 @@
 package com.lohika.ovashchenko.radiot;
 
-
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -20,34 +15,36 @@ import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class PlayMusicActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
-    private Handler handler;
     private PagerAdapter pagerAdapter;
-    private PlayService mService;
     private RadioDB db;
-    private boolean mBound = false;
 
-
-    /*private ServiceConnection mConnection = new ServiceConnection() {
+    private Handler refreshAdapterHandler = new Handler() {
         @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            PlayService.PlayBinder binder = (PlayService.PlayBinder) service;
-            mService = binder.getService();
-            mBound = true;
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            for (int i=0; i<pagerAdapter.getCount(); i++) {
+                ((SongsFragment)pagerAdapter.getItem(i)).refreshData();
+            }
         }
+    };
 
+    private Handler handler = new Handler() {
         @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 0:
+                    restartLoader();
+                    break;
+            }
         }
-    };*/
+    };
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle bndl) {
@@ -69,15 +66,6 @@ public class PlayMusicActivity extends AppCompatActivity implements LoaderManage
             thread.start();
         }
 
-        Handler refreshAdapterHandler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-                for (int i=0; i<pagerAdapter.getCount(); i++) {
-                    ((SongsFragment)pagerAdapter.getItem(i)).refreshData();
-                }
-            }
-        };
         refreshAdapterHandler.sendEmptyMessage(0);
     }
 
@@ -99,20 +87,9 @@ public class PlayMusicActivity extends AppCompatActivity implements LoaderManage
         db.open();
         initToolbar();
         initViewPagerAndTabs();
-        handler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-                switch (msg.what) {
-                    case 0:
-                        RadioApplication.getInstance().synced();
-                        restartLoader();
-                        break;
-                }
-            }
-        };
-
-        getSupportLoaderManager().initLoader(0, null, this);
+        if (!RadioApplication.getInstance().isSynced()) {
+            getSupportLoaderManager().initLoader(0, null, this);
+        }
     }
 
     private void restartLoader() {

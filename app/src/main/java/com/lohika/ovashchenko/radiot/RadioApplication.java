@@ -22,7 +22,6 @@ public class RadioApplication extends Application {
     private static RadioApplication instance;
     private boolean isSynced = false;
     private boolean isPlaying = false;
-    private String playingSong = "";
     public void synced() {
         isSynced = true;
     }
@@ -34,20 +33,6 @@ public class RadioApplication extends Application {
     public static RadioApplication getInstance() {
         return instance;
     }
-
-    public String getPlayingSong() {
-        return playingSong;
-    }
-
-    /*public void playPause(String url){
-        if (isPlaying) {
-            pausePlaying();
-            //playingSong = "";
-        } else {
-            playSong(url);
-            playingSong = url;
-        }
-    }*/
 
     public void playSong(String url) {
         Intent playbackServiceIntent = new Intent(this, PlayService.class);

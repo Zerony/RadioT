@@ -1,17 +1,15 @@
 package com.lohika.ovashchenko.radiot;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.media.MediaPlayer;
-import android.media.session.MediaController;
-import android.media.session.MediaSession;
-import android.media.session.MediaSessionManager;
 import android.net.Uri;
-import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 
 /**
  * Created by ovashchenko on 11/3/16.
@@ -19,12 +17,8 @@ import android.support.annotation.Nullable;
 public class PlayService extends Service implements MediaPlayer.OnCompletionListener {
     public static final String ACTION_PLAY = "action_play";
     public static final String ACTION_PAUSE = "action_pause";
-    public static final String ACTION_REWIND = "action_rewind";
-    public static final String ACTION_FAST_FORWARD = "action_fast_foward";
-    public static final String ACTION_NEXT = "action_next";
-    public static final String ACTION_PREVIOUS = "action_previous";
     public static final String ACTION_STOP = "action_stop";
-
+    public static final int NOTIFICATION_ID = 1;
     private MediaPlayer mediaPlayer;
     private String playURL = "";
 
@@ -57,6 +51,17 @@ public class PlayService extends Service implements MediaPlayer.OnCompletionList
                 playURL = url;
                 mediaPlayer = MediaPlayer.create(this, Uri.parse(url));
                 mediaPlayer.start();
+                PendingIntent pi = PendingIntent.getActivity(this, 0,
+                        new Intent(getApplicationContext(), PlayService.class),
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+                builder.setAutoCancel(true).setTicker("Play music").setContentIntent(pi);
+                NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                Notification notification = builder.build();
+                notification.flags = Notification.FLAG_ONGOING_EVENT | Notification.FLAG_NO_CLEAR;
+                startForeground(NOTIFICATION_ID, notification);
+                manager.notify(NOTIFICATION_ID, notification);
             }
 
         } else if(action.equalsIgnoreCase(ACTION_PAUSE)) {
@@ -76,6 +81,7 @@ public class PlayService extends Service implements MediaPlayer.OnCompletionList
 
     @Override
     public void onCompletion(MediaPlayer _mediaPlayer) {
+        stopForeground(true);
         stopSelf();
     }
 
