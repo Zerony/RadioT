@@ -22,6 +22,12 @@ public class RadioApplication extends Application {
     private static RadioApplication instance;
     private boolean isSynced = false;
     private boolean isPlaying = false;
+    private String playURL = "";
+
+    public String getPlayURL() {
+        return playURL;
+    }
+
     public void synced() {
         isSynced = true;
     }
@@ -34,12 +40,15 @@ public class RadioApplication extends Application {
         return instance;
     }
 
-    public void playSong(String url) {
+    public void playSong(RadioStation.Song song) {
         Intent playbackServiceIntent = new Intent(this, PlayService.class);
-        playbackServiceIntent.putExtra(Constants.SONG_URL, url);
-        playbackServiceIntent.setAction(PlayService.ACTION_PLAY);
-        startService(playbackServiceIntent);
+        playbackServiceIntent.putExtra(Constants.SERVICE_ACTION, PlayService.ACTION_PLAY);
+        playbackServiceIntent.putExtra(Constants.SONG_URL, song.getLinkToSong());
+        playbackServiceIntent.putExtra(Constants.SONG_NAME, song.getName());
 
+        //playbackServiceIntent.setAction(PlayService.ACTION_PLAY);
+        startService(playbackServiceIntent);
+        playURL = song.getLinkToSong();
         isPlaying = true;
 
     }
@@ -49,8 +58,9 @@ public class RadioApplication extends Application {
             return;
         }
         Intent playbackServiceIntent = new Intent(this, PlayService.class);
-        playbackServiceIntent.setAction(PlayService.ACTION_PAUSE);
+        playbackServiceIntent.putExtra(Constants.SERVICE_ACTION, PlayService.ACTION_PAUSE);
         startService(playbackServiceIntent);
+        playURL = "";
         isPlaying = false;
     }
 

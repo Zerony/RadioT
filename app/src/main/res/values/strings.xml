@@ -9,4 +9,5 @@
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="tab_2">TAB 2</string>
     <string name="tab_1">TAB 1</string>
+    <string name="notification_label">You are listening: </string>
 </resources>

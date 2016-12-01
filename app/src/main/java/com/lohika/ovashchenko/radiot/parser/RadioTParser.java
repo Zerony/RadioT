@@ -9,6 +9,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,7 +20,7 @@ import java.util.regex.Pattern;
 /**
  * Created by ovashchenko on 11/24/16.
  */
-public class RadioTParser implements RadioXMLParser{
+public class RadioTParser implements RadioXMLParser, Serializable{
 
     @Override
     public List<RadioStation.Song> parseXML(String text, RadioStation radioStation) {

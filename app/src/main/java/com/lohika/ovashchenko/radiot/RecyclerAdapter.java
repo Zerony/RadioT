@@ -47,8 +47,16 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
 
         holder.mItemTextView.setText(itemText);
+        final String existedStatus;
+        if (RadioApplication.getInstance().getPlayURL().equals(song.getLinkToSong())) {
+            holder.mPlayPause.setImageResource(R.drawable.pause);
+            existedStatus = Constants.PAUSE;
+        } else {
+            existedStatus = Constants.PLAY;
+        }
+
         View.OnClickListener onClickListener = new View.OnClickListener() {
-            private String status = Constants.PLAY;
+            private String status = existedStatus;
             @Override
             public void onClick(View v) {
                 if (lastPlayingSong != null && lastPlayingSong != holder.mPlayPause) {
@@ -57,12 +65,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
                     holder.mPlayPause.setImageResource(R.drawable.pause);
                     lastPlayingSong = holder.mPlayPause;
                     status = Constants.PAUSE;
-                    RadioApplication.getInstance().playSong(song.getLinkToSong());
+                    RadioApplication.getInstance().playSong(song);
                 } else if (status.equals(Constants.PLAY)) {
                     holder.mPlayPause.setImageResource(R.drawable.pause);
                     lastPlayingSong = holder.mPlayPause;
                     status = Constants.PAUSE;
-                    RadioApplication.getInstance().playSong(song.getLinkToSong());
+                    RadioApplication.getInstance().playSong(song);
                 } else {
                     holder.mPlayPause.setImageResource(R.drawable.play);
                     status = Constants.PLAY;
