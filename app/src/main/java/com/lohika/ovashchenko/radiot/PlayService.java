@@ -84,6 +84,27 @@ public class PlayService extends Service implements MediaPlayer.OnCompletionList
         }
     }
 
+
+    @Override
+    public void onDestroy() {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+        }
+        mediaPlayer.release();
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer _mediaPlayer) {
+        stopForeground(true);
+        stopSelf();
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
     private NotificationCompat.Builder getPauseStopBuilder() {
         return buildBaseBuilder()
                 .addAction(this.buildPauseAction())
@@ -141,29 +162,4 @@ public class PlayService extends Service implements MediaPlayer.OnCompletionList
                 "Stop", stopPIntent).build();
     }
 
-    @Override
-    public void onDestroy() {
-        if (mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
-        }
-        mediaPlayer.release();
-    }
-
-    @Override
-    public void onCompletion(MediaPlayer _mediaPlayer) {
-        stopForeground(true);
-        stopSelf();
-    }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
-//    public class PlayBinder extends Binder {
-//        PlayService getService() {
-//            return PlayService.this;
-//        }
-//    }
 }
