@@ -1,8 +1,6 @@
 package com.lohika.ovashchenko.radiot;
 
 import android.app.Application;
-import android.app.Notification;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.res.Configuration;
 
@@ -46,7 +44,6 @@ public class RadioApplication extends Application {
         playbackServiceIntent.putExtra(Constants.SONG_URL, song.getLinkToSong());
         playbackServiceIntent.putExtra(Constants.SONG_NAME, song.getName());
 
-        //playbackServiceIntent.setAction(PlayService.ACTION_PLAY);
         startService(playbackServiceIntent);
         playURL = song.getLinkToSong();
         isPlaying = true;
@@ -75,16 +72,6 @@ public class RadioApplication extends Application {
         instance = this;
     }
 
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-    }
-
-    @Override
-    public void onTerminate() {
-        super.onTerminate();
-    }
-
     public RadioStationData getRadioStationData() {
         return RadioStationData.getInstance();
     }
@@ -94,7 +81,7 @@ public class RadioApplication extends Application {
             return;
         }
         RadioDB db = new RadioDB(getInstance());
-        RadioStation radioT = new RadioStation("RadioT", "http://feeds.rucast.net/radio-t");
+        RadioStation radioT = new RadioStation("RadioT", BuildConfig.RU_CAST_SERVER_URL);
         radioT.setParser(new RadioTParser());
         db.open();
         //db.delAllSong();

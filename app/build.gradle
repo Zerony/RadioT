@@ -13,6 +13,14 @@ android {
     }
     buildTypes {
         release {
+            buildConfigField "String", "RU_CAST_SERVER_URL", '"http://feeds.rucast.net/radio-t"'
+
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            buildConfigField "String", "RU_CAST_SERVER_URL", '"http://feeds.rucast.net/radio-t"'
+
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

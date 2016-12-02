@@ -1,10 +1,8 @@
 package com.lohika.ovashchenko.radiot;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -30,6 +28,7 @@ public class PlayService extends Service implements MediaPlayer.OnCompletionList
     private MediaPlayer mediaPlayer;
     private String playURL = "";
     private String songName = "";
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -44,22 +43,26 @@ public class PlayService extends Service implements MediaPlayer.OnCompletionList
     }
 
     private void handleIntent(Intent intent) {
-        String action = intent.getStringExtra(Constants.SERVICE_ACTION);
-        if( intent == null || action == null ) {
+        if (intent == null) {
             return;
         }
-        NotificationManagerCompat manager = NotificationManagerCompat.from(this);
-        if( action.equalsIgnoreCase(ACTION_PLAY) ) {
-            String url = intent.getStringExtra(Constants.SONG_URL);
-            if (mediaPlayer.isPlaying() && !url.equals(playURL)) {
-                mediaPlayer.stop();
-            }
 
+        String action = intent.getStringExtra(Constants.SERVICE_ACTION);
+        if (action == null) {
+            return;
+        }
+
+        NotificationManagerCompat manager = NotificationManagerCompat.from(this);
+        if (action.equalsIgnoreCase(ACTION_PLAY)) {
+            String url = intent.getStringExtra(Constants.SONG_URL);
             if (url.equals(this.playURL)) {
                 this.mediaPlayer.start();
                 NotificationCompat.Builder builder = getPauseStopBuilder();
                 manager.notify(NOTIFICATION_ID, builder.build());
             } else {
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.stop();
+                }
                 this.playURL = url;
                 this.songName = intent.getStringExtra(Constants.SONG_NAME);
                 this.mediaPlayer = MediaPlayer.create(this, Uri.parse(url));
@@ -73,14 +76,14 @@ public class PlayService extends Service implements MediaPlayer.OnCompletionList
                 manager.notify(NOTIFICATION_ID, notification);
             }
 
-        } else if(action.equalsIgnoreCase(ACTION_PAUSE)) {
+        } else if (action.equalsIgnoreCase(ACTION_PAUSE)) {
             this.mediaPlayer.pause();
             NotificationCompat.Builder builder = this.getPlayStopBuilder();
 
             manager.notify(NOTIFICATION_ID, builder.build());
-        } else if(action.equalsIgnoreCase(ACTION_STOP)) {
-            stopForeground(true);
+        } else if (action.equalsIgnoreCase(ACTION_STOP)) {
             this.mediaPlayer.stop();
+            stopForeground(true);
         }
     }
 
@@ -141,7 +144,7 @@ public class PlayService extends Service implements MediaPlayer.OnCompletionList
         PendingIntent playPIntent = PendingIntent.getService(this, START_PLAYING_PI, playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         return new NotificationCompat.Action.Builder(android.R.drawable.ic_media_play,
-                "Play", playPIntent).build();
+                getResources().getString(R.string.play), playPIntent).build();
     }
 
     private NotificationCompat.Action buildPauseAction() {
@@ -150,7 +153,7 @@ public class PlayService extends Service implements MediaPlayer.OnCompletionList
         PendingIntent pausePIntent = PendingIntent.getService(this, PAUSE_PLAYING_PI, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         return new NotificationCompat.Action.Builder(android.R.drawable.ic_media_pause,
-                "Pause", pausePIntent).build();
+                getResources().getString(R.string.pause), pausePIntent).build();
     }
 
     private NotificationCompat.Action buildStopAction() {
@@ -159,7 +162,7 @@ public class PlayService extends Service implements MediaPlayer.OnCompletionList
         PendingIntent stopPIntent = PendingIntent.getService(this, STOP_PLAYING_PI, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         return new NotificationCompat.Action.Builder(R.drawable.ic_media_stop,
-                "Stop", stopPIntent).build();
+                getResources().getString(R.string.stop), stopPIntent).build();
     }
 
 }

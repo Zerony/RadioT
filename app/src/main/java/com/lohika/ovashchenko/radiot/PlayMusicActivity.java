@@ -16,6 +16,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,28 +24,9 @@ import java.util.List;
 public class PlayMusicActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private PagerAdapter pagerAdapter;
     private RadioDB db;
+    private Handler refreshAdapterHandler;
+    private Handler requestHandler;
 
-    private Handler refreshAdapterHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            for (int i=0; i<pagerAdapter.getCount(); i++) {
-                ((SongsFragment)pagerAdapter.getItem(i)).refreshData();
-            }
-        }
-    };
-
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case 0:
-                    restartLoader();
-                    break;
-            }
-        }
-    };
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle bndl) {
@@ -62,7 +44,7 @@ public class PlayMusicActivity extends AppCompatActivity implements LoaderManage
         }
 
         if (!RadioApplication.getInstance().isSynced()) {
-            Thread thread = new Thread(new RadioConnector(handler, RadioApplication.getInstance().getRadioStationData().getAllRadioStations()));
+            Thread thread = new Thread(new RadioConnector(requestHandler, RadioApplication.getInstance().getRadioStationData().getAllRadioStations()));
             thread.start();
         }
 
@@ -83,6 +65,8 @@ public class PlayMusicActivity extends AppCompatActivity implements LoaderManage
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_music);
+        requestHandler = new RequestHandler(this);
+        refreshAdapterHandler = new RefreshAdapterHandler(this);
         db = new RadioDB(this);
         db.open();
         initToolbar();
@@ -117,7 +101,13 @@ public class PlayMusicActivity extends AppCompatActivity implements LoaderManage
         tabLayout.setupWithViewPager(viewPager);
     }
 
-    static class PagerAdapter extends FragmentPagerAdapter {
+    private void refreshAdapter() {
+        for (int i=0; i<pagerAdapter.getCount(); i++) {
+            ((SongsFragment)pagerAdapter.getItem(i)).refreshData();
+        }
+    }
+
+    private static class PagerAdapter extends FragmentPagerAdapter {
 
         private final List<Fragment> fragmentList = new ArrayList<>();
         private final List<String> fragmentTitleList = new ArrayList<>();
@@ -147,7 +137,7 @@ public class PlayMusicActivity extends AppCompatActivity implements LoaderManage
         }
     }
 
-    static class RadioCursorLoader extends CursorLoader {
+    private static class RadioCursorLoader extends CursorLoader {
 
         RadioDB db;
 
@@ -161,5 +151,37 @@ public class PlayMusicActivity extends AppCompatActivity implements LoaderManage
             return db.getAllSongs();
         }
 
+    }
+
+    private static class RequestHandler extends Handler {
+        private final WeakReference<PlayMusicActivity> mActivity;
+
+        RequestHandler(PlayMusicActivity activity) {
+            mActivity = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 0:
+                    mActivity.get().restartLoader();
+                    break;
+            }
+        }
+    }
+    
+    private static class RefreshAdapterHandler extends Handler {
+        private final WeakReference<PlayMusicActivity> mActivity;
+
+        RefreshAdapterHandler(PlayMusicActivity activity) {
+            mActivity = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            mActivity.get().refreshAdapter();
+        }
     }
 }

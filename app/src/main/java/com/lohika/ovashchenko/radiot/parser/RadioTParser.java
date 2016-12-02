@@ -21,6 +21,13 @@ import java.util.regex.Pattern;
  * Created by ovashchenko on 11/24/16.
  */
 public class RadioTParser implements RadioXMLParser, Serializable{
+    public static final String ENCLOSURE = "enclosure";
+    public static final String TITLE = "title";
+    public static final String ITEM = "item";
+    public static final String DESCRIPTION = "description";
+    public static final String PUB_DATE = "pubDate";
+    public static final String URL = "url";
+    public static final String REGEX  = "src\\s*=\\s*\"([^\"]+)\"";
 
     @Override
     public List<RadioStation.Song> parseXML(String text, RadioStation radioStation) {
@@ -35,32 +42,32 @@ public class RadioTParser implements RadioXMLParser, Serializable{
                 Log.d(LOG_TAG, "START_TAG: name = " + xpp.getName()
                         + ", depth = " + xpp.getDepth() + ", attrCount = "
                         + xpp.getAttributeCount());
-                if ( xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals("item")) {
+                if ( xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals(ITEM)) {
                     RadioStation.Song song = new RadioStation.Song();
                     song.setStationId(radioStation.getId());
-                    while (xpp.getEventType() != XmlPullParser.END_TAG || !xpp.getName().equals("item")) {
+                    while (xpp.getEventType() != XmlPullParser.END_TAG || !xpp.getName().equals(ITEM)) {
 
-                        if (xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals("title")) {
+                        if (xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals(TITLE)) {
                             xpp.next();
                             song.setName(xpp.getText());
-                        } else if (xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals("enclosure")) {
+                        } else if (xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals(ENCLOSURE)) {
                             for (int i = 0; i < xpp.getAttributeCount(); i++) {
-                                if (!xpp.getAttributeName(i).equals("url")) {
+                                if (!xpp.getAttributeName(i).equals(URL)) {
                                     continue;
                                 }
                                 song.setLinkToSong(xpp.getAttributeValue(i));
                                 break;
                             }
 
-                        } else if (xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals("description")) {
+                        } else if (xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals(DESCRIPTION)) {
                             xpp.next();
-                            Pattern p = Pattern.compile("src\\s*=\\s*\"([^\"]+)\"");
+                            Pattern p = Pattern.compile(REGEX);
 
                             Matcher m = p.matcher(xpp.getText());
                             if (m.find()) {
                                 song.setImageURL(m.group(1));
                             }
-                        } else if (xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals("pubDate")) {
+                        } else if (xpp.getEventType() == XmlPullParser.START_TAG && xpp.getName().equals(PUB_DATE)) {
                             xpp.next();
                             long pubDate2 = Date.parse(xpp.getText());
 

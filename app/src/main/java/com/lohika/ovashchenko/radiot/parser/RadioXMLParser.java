@@ -1,7 +1,6 @@
 package com.lohika.ovashchenko.radiot.parser;
 
 import com.lohika.ovashchenko.radiot.RadioStation;
-
 import java.util.List;
 
 /**
