@@ -8,11 +8,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import javax.inject.Inject;
 
 public class SongsFragment extends Fragment {
     private final static String SAVED_RADIO_KEY = "RADIO_KEY";
     private final static String BUNDLE_RADIO_KEY = "STATION";
     private RecyclerAdapter recyclerAdapter;
+    private AppComponent appComponent;
+    @Inject PlayController playController;
 
     public static SongsFragment createInstance(RadioStation station) {
         SongsFragment songsFragment = new SongsFragment();
@@ -28,10 +31,13 @@ public class SongsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         RadioStation station;
+        appComponent = ((RadioApplication) getActivity().getApplication()).getAppComponent();
+        appComponent.inject(this);
+
         if(savedInstanceState!=null) {
             String radioId = savedInstanceState.getString(SAVED_RADIO_KEY);
-            RadioApplication application = (RadioApplication) getActivity().getApplication();
-            station = application.getRadioStationData().getStation(radioId);
+            //RadioApplication application = (RadioApplication) getActivity().getApplication();
+            station = playController.getStationData().getStation(radioId);
         } else {
             Bundle bundle = getArguments();
             station = (RadioStation) bundle.getSerializable(BUNDLE_RADIO_KEY);
@@ -56,6 +62,7 @@ public class SongsFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         this.recyclerAdapter = new RecyclerAdapter();
         recyclerAdapter.setStation(station);
+        recyclerAdapter.setPlayController(playController);
         recyclerView.setAdapter(this.recyclerAdapter);
     }
 

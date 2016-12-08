@@ -23,34 +23,34 @@ public class RadioConnector implements Runnable{
     private static String LOG_TAG = "XML PARSER";
     private  final HttpClient client;
     private  final RadioDB db;
+    private  final PlayController playController;
     private Handler handler;
     private Collection<RadioStation> radioStation;
 
-    public RadioConnector(HttpClient client, RadioDB db) {
+    public RadioConnector(HttpClient client, RadioDB db, PlayController playController) {
         this.client = client;
         this.db = db;
+        this.playController = playController;
     }
 
     @Override
     public void run() {
-        if (RadioApplication.getInstance().isSynced()) {
+        if (playController.isSynced()) {
             return;
         }
         for (RadioStation item : this.radioStation) {
             connect(item);
         }
-        RadioApplication.getInstance().synced();
+        playController.synced();
     }
 
     private void connect(RadioStation station) {
-        HttpClient httpclient = new DefaultHttpClient();
         HttpGet httpget = new HttpGet(station.getURL());
         HttpResponse response;
-        RadioDB db = new RadioDB(RadioApplication.getInstance());
         db.open();
 
         try {
-            response = httpclient.execute(httpget);
+            response = client.execute(httpget);
             Log.i("Response status",response.getStatusLine().toString());
             HttpEntity entity = response.getEntity();
             if (entity != null) {

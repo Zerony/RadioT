@@ -36,13 +36,19 @@ public class AppModule {
 
     @Provides
     @Singleton
-    static RadioConnector provideRadioConnector(HttpClient client, RadioDB db) {
-        return new RadioConnector(client, db);
+    static RadioConnector provideRadioConnector(HttpClient client, RadioDB db, PlayController playController) {
+        return new RadioConnector(client, db, playController);
     }
 
     @Provides
     @Singleton
     Context provideContext() {
         return context;
+    }
+
+    @Provides
+    @Singleton
+    static PlayController providePlayController(RadioDB db, Context context) {
+        return new PlayController(db, context);
     }
 }

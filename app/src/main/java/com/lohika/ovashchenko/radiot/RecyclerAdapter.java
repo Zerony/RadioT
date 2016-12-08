@@ -20,6 +20,11 @@ import com.bumptech.glide.Glide;
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.RecyclerItemViewHolder> {
     private RadioStation station;
     private ImageView lastPlayingSong;
+    private PlayController playController;
+
+    public void setPlayController(PlayController playController) {
+        this.playController = playController;
+    }
 
     public void setStation(RadioStation station) {
         this.station = station;
@@ -48,7 +53,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
         holder.mItemTextView.setText(itemText);
         final String existedStatus;
-        if (RadioApplication.getInstance().getPlayURL().equals(song.getLinkToSong())) {
+        if (playController.getPlayURL().equals(song.getLinkToSong())) {
             holder.mPlayPause.setImageResource(R.drawable.pause);
             existedStatus = Constants.PAUSE;
         } else {
@@ -61,20 +66,20 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
             public void onClick(View v) {
                 if (lastPlayingSong != null && lastPlayingSong != holder.mPlayPause) {
                     lastPlayingSong.setImageResource(R.drawable.play);
-                    RadioApplication.getInstance().pausePlaying();
+                    playController.pausePlaying();
                     holder.mPlayPause.setImageResource(R.drawable.pause);
                     lastPlayingSong = holder.mPlayPause;
                     status = Constants.PAUSE;
-                    RadioApplication.getInstance().playSong(song);
+                    playController.playSong(song);
                 } else if (status.equals(Constants.PLAY)) {
                     holder.mPlayPause.setImageResource(R.drawable.pause);
                     lastPlayingSong = holder.mPlayPause;
                     status = Constants.PAUSE;
-                    RadioApplication.getInstance().playSong(song);
+                    playController.playSong(song);
                 } else {
                     holder.mPlayPause.setImageResource(R.drawable.play);
                     status = Constants.PLAY;
-                    RadioApplication.getInstance().pausePlaying();
+                    playController.pausePlaying();
                 }
 
 
