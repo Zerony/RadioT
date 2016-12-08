@@ -21,6 +21,7 @@ public class RadioApplication extends Application {
     private boolean isSynced = false;
     private boolean isPlaying = false;
     private String playURL = "";
+    private AppComponent appComponent;
 
     public String getPlayURL() {
         return playURL;
@@ -70,6 +71,7 @@ public class RadioApplication extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+        appComponent = DaggerAppComponent.builder().appModule(new AppModule(this)).build();
     }
 
     public RadioStationData getRadioStationData() {
@@ -97,6 +99,10 @@ public class RadioApplication extends Application {
 
         RadioStationData.getInstance().addStation(radioT);
 
+    }
+
+    public AppComponent getAppComponent() {
+        return appComponent;
     }
 
     public static class RadioStationData {

@@ -15,10 +15,13 @@ import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.test.mock.MockApplication;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 
 public class PlayMusicActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -26,6 +29,8 @@ public class PlayMusicActivity extends AppCompatActivity implements LoaderManage
     private RadioDB db;
     private Handler refreshAdapterHandler;
     private Handler requestHandler;
+    @Inject RadioConnector connector;
+    private AppComponent appComponent;
 
 
     @Override
@@ -44,7 +49,10 @@ public class PlayMusicActivity extends AppCompatActivity implements LoaderManage
         }
 
         if (!RadioApplication.getInstance().isSynced()) {
-            Thread thread = new Thread(new RadioConnector(requestHandler, RadioApplication.getInstance().getRadioStationData().getAllRadioStations()));
+            appComponent.inject(this);
+            connector.setHandler(requestHandler);
+            connector.setRadioStation(RadioApplication.getInstance().getRadioStationData().getAllRadioStations());
+            Thread thread = new Thread(connector);
             thread.start();
         }
 
@@ -65,6 +73,7 @@ public class PlayMusicActivity extends AppCompatActivity implements LoaderManage
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_music);
+        appComponent = ((RadioApplication) getApplication()).getAppComponent();
         requestHandler = new RequestHandler(this);
         refreshAdapterHandler = new RefreshAdapterHandler(this);
         db = new RadioDB(this);
@@ -170,7 +179,7 @@ public class PlayMusicActivity extends AppCompatActivity implements LoaderManage
             }
         }
     }
-    
+
     private static class RefreshAdapterHandler extends Handler {
         private final WeakReference<PlayMusicActivity> mActivity;
 

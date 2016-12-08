@@ -1,9 +1,6 @@
 package com.lohika.ovashchenko.radiot;
 
-import android.content.Context;
-import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
 import org.apache.http.HttpEntity;
@@ -11,32 +8,27 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by ovashchenko on 11/14/16.
  */
 public class RadioConnector implements Runnable{
     private static String LOG_TAG = "XML PARSER";
+    private  final HttpClient client;
+    private  final RadioDB db;
     private Handler handler;
     private Collection<RadioStation> radioStation;
-    public RadioConnector(Handler handler, Collection<RadioStation> radioStation) {
-        this.handler = handler;
-        this.radioStation = radioStation;
+
+    public RadioConnector(HttpClient client, RadioDB db) {
+        this.client = client;
+        this.db = db;
     }
 
     @Override
@@ -95,5 +87,13 @@ public class RadioConnector implements Runnable{
             }
         }
         return sb.toString();
+    }
+
+    public void setHandler(Handler handler) {
+        this.handler = handler;
+    }
+
+    public void setRadioStation(Collection<RadioStation> radioStation) {
+        this.radioStation = radioStation;
     }
 }
