@@ -21,9 +21,9 @@ import java.util.List;
  */
 public class RadioConnector implements Runnable{
     private static String LOG_TAG = "XML PARSER";
-    private  final HttpClient client;
-    private  final RadioDB db;
-    private  final PlayController playController;
+    private final HttpClient client;
+    private final RadioDB db;
+    private final PlayController playController;
     private Handler handler;
     private Collection<RadioStation> radioStation;
 
